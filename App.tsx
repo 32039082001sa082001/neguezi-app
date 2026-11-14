@@ -5,7 +5,11 @@ import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
 import { Scene } from './src/scene';
-import { Sons, Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
+import { Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
+import { SonsNeuf, MiniLecteur, BarreBas, Ouverture, SERIF, LecteurNeuf } from './src/sons';
+import { useFonts } from 'expo-font';
+import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces';
+import { Manrope_500Medium } from '@expo-google-fonts/manrope';
 
 export default function App() {
   const [splash, setSplash] = useState(true);
@@ -19,6 +23,16 @@ export default function App() {
   const [room, setRoom] = useState<Room | null>(null);
   const [, setVer] = useState(0);
   const player = useRef<any>(null);
+  useFonts({ Fraunces_600SemiBold, Manrope_500Medium });
+  const [eff, setEff] = useState('');
+  function applyEff(k: string) {
+    const n = eff === k ? '' : k;
+    setEff(n);
+    const p = player.current; if (!p) return;
+    const m: any = { ralenti: [0.8, true], vitesse: [1.25, true], enfant: [1.3, false], grave: [0.8, false] };
+    const v = m[n] || [1, true];
+    try { p.shouldCorrectPitch = v[1]; p.setPlaybackRate(v[0]); } catch (e) {}
+  }
 
   async function loadMusic() {
     try {
@@ -40,7 +54,7 @@ export default function App() {
   useEffect(() => {
     Animated.timing(logoIn, { toValue: 1, duration: 1400, useNativeDriver: true }).start();
     const t = setTimeout(() => { Animated.timing(fade, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => setSplash(false)); }, 2600);
-    setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+    setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' }).catch(() => {});
     loadMusic();
     return () => clearTimeout(t);
   }, []);
@@ -71,7 +85,8 @@ export default function App() {
       const ct = p.currentTime || 0;
       setTime(Math.floor(ct));
       const d = TRACKS[cur] ? TRACKS[cur].d : 0;
-      if (d && ct >= d - 0.6) next();
+      if (d) { try { p.volume = Math.max(0.05, Math.min(1, ct / 3, (d - ct) / 3)); } catch (e) {} }
+    if (d && ct >= d - 0.6) next();
     }, 500);
     return () => clearInterval(id);
   }, [playing, cur]);
@@ -82,8 +97,8 @@ export default function App() {
   const has = TRACKS.length > 0 && !!TRACKS[cur];
 
   let body: React.ReactNode = null;
-  if (screen === 'sons') body = <Sons cur={cur} playing={playing} onPick={pick} onAsk={loadMusic} />;
-  if (screen === 'lecteur' && has) body = <Lecteur cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
+  if (screen === 'sons') body = <SonsNeuf cur={cur} playing={playing} onPick={pick} onAsk={loadMusic} />;
+  if (screen === 'lecteur' && has) body = <LecteurNeuf eff={eff} setEff={applyEff} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
   if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
   if (screen === 'classement') body = <Classement />;
@@ -95,25 +110,14 @@ export default function App() {
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
       <View style={{ flex: 1 }}>{body}</View>
       {screen !== 'lecteur' && screen !== 'scene' && has && (
-        <Pressable onPress={() => setScreen('lecteur')} style={{ position: 'absolute', left: 12, right: 12, bottom: 118, backgroundColor: C.card, borderWidth: 1, borderColor: C.copper, borderRadius: 18, padding: 8, flexDirection: 'row', alignItems: 'center' }}>
-          <Cover title={TRACKS[cur].t} size={40} />
-          <View style={{ flex: 1, marginLeft: 10 }}><Text numberOfLines={1} style={{ color: C.cream }}>{TRACKS[cur].t}</Text><Text style={{ color: C.grey, fontSize: 12 }}>Artiste inconnu · {fmt(time)}</Text></View>
-          <Pressable onPress={toggle} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.copper, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.bg, fontSize: 16 }}>{playing ? '❚❚' : '►'}</Text></Pressable>
-        </Pressable>
+        <MiniLecteur t={TRACKS[cur]} i={cur} playing={playing} time={time} toggle={toggle} next={next} open={() => setScreen('lecteur')} />
       )}
-      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: C.line, backgroundColor: C.bg, paddingBottom: Platform.OS === 'android' ? 44 : 10, paddingTop: 8 }}>
-        {tabs.map(([k, l, g]) => (
-          <Pressable key={k} onPress={() => setScreen(k)} style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ color: active === k ? C.copper : C.grey, fontSize: 20 }}>{g}</Text>
-            <Text style={{ color: active === k ? C.copper : C.grey, fontSize: 11 }}>{l}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <BarreBas tabs={tabs} active={active} go={(k: string) => setScreen(k)} />
       {splash && (
         <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center', opacity: fade }}>
           <Animated.View style={{ alignItems: 'center', opacity: logoIn, transform: [{ scale: logoIn.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
-            <Logo size={130} />
-            <Text style={{ color: C.copper, fontFamily: 'serif', fontSize: 34, letterSpacing: 8, marginTop: 24 }}>NEGUEZI</Text>
+            <Ouverture />
+            <Text style={{ color: C.copper, fontFamily: SERIF, fontSize: 34, letterSpacing: 8, marginTop: 24 }}>NEGUEZI</Text>
             <Text style={{ color: C.grey, fontStyle: 'italic', marginTop: 8 }}>la musique avec tes bons amis</Text>
           </Animated.View>
         </Animated.View>
