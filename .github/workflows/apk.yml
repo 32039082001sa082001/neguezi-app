@@ -17,6 +17,7 @@ jobs:
           java-version: 17
       - run: npm install
       - run: npx expo prebuild --platform android --no-install
+      - run: sed -i '/^org.gradle.jvmargs/d' android/gradle.properties && printf '\norg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g\n' >> android/gradle.properties
       - run: cd android && chmod +x gradlew && ./gradlew assembleRelease
       - uses: actions/upload-artifact@v4
         with:
