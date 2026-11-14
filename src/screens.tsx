@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Switch, Share, Linking, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import * as Clipboard from 'expo-clipboard';
+import * as Sharing from 'expo-sharing';
+import { captureRef } from 'react-native-view-shot';
+import { View, Text, Pressable, ScrollView, TextInput, Switch, Share, Linking, Alert, Image } from 'react-native';
 import { C, TRACKS, DEMO as TDEMO, fmt } from './theme';
 import { Pill, Cover, Vinyl, Head } from './ui';
 
@@ -89,15 +93,15 @@ export function Lecteur({ cur, playing, time, toggle, next, prev, back, goRank }
   );
 }
 
-export type Room = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
+export type Room = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; photo?: string };
 const DEMO: Room[] = [{ name: 'Salle Bamako', pub: true, n: 24 }, { name: 'Soirée Ségou', pub: true, n: 61 }, { name: 'Matin doré', pub: true, n: 8 }];
 
-export function Salles({ mine, goCreate }: { mine: Room | null; goCreate: () => void }) {
+export function Salles({ mine, goCreate, open }: { mine: Room | null; goCreate: () => void; open: (r: Room) => void }) {
   const [code, setCode] = useState('');
   const rooms = mine && mine.pub ? [mine, ...DEMO] : DEMO;
   return (
     <ScrollView contentContainerStyle={pad}>
-      <Head title="Salles en direct" right={<Pressable onPress={goCreate} style={{ borderWidth: 1, borderColor: C.copper, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 }}><Text style={{ color: C.copper }}>{mine ? 'Ma salle' : 'Créer ma salle'}</Text></Pressable>} />
+      <Head title="Salles en direct" right={<Pressable onPress={mine ? () => open(mine) : goCreate} style={{ borderWidth: 1, borderColor: C.copper, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 }}><Text style={{ color: C.copper }}>{mine ? 'Ma salle' : 'Créer ma salle'}</Text></Pressable>} />
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
         <TextInput value={code} onChangeText={(x) => setCode(x.toUpperCase().replace(/[^A-Z]/g, ''))} maxLength={6} placeholder="Entrer avec un code" placeholderTextColor={C.grey} style={[card, { flex: 1, color: C.cream, paddingHorizontal: 14, letterSpacing: 3 }]} />
         <Pressable onPress={() => Alert.alert('Bientôt', 'Les salles en direct arrivent avec la connexion.')} style={[btn, { paddingHorizontal: 18, paddingVertical: 12 }]}><Text style={{ color: C.bg }}>Entrer</Text></Pressable>
@@ -108,7 +112,7 @@ export function Salles({ mine, goCreate }: { mine: Room | null; goCreate: () => 
           <Text style={{ color: C.cream, fontSize: 22, fontFamily: 'serif', marginTop: 4 }}>{r.name}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
             <Text style={{ color: C.grey }}>{r.n} auditeurs</Text>
-            <Pressable onPress={() => Alert.alert('Bientôt', 'Écouter en direct arrive avec la connexion.')} style={[btn, { paddingHorizontal: 20, paddingVertical: 10 }]}><Text style={{ color: C.bg }}>Écouter</Text></Pressable>
+            <Pressable onPress={() => open(r)} style={[btn, { paddingHorizontal: 20, paddingVertical: 10 }]}><Text style={{ color: C.bg }}>Écouter</Text></Pressable>
           </View>
         </View>
       ))}
@@ -123,15 +127,22 @@ export function Creer({ onCreate, back }: { onCreate: (r: Room) => void; back: (
   const [name, setName] = useState('');
   const [pub, setPub] = useState(true);
   const [code] = useState(newCode);
+  const [photo, setPhoto] = useState<string | null>(null);
+  async function pickPhoto() {
+    try {
+      const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.4 });
+      if (!r.canceled) setPhoto(r.assets[0].uri);
+    } catch (e: any) { Alert.alert('Erreur photo', String(e && e.message ? e.message : e)); }
+  }
   const msg = 'Viens dans ma salle NEGUEZI « ' + (name || 'Ma salle') + ' » ' + (pub ? '' : 'Code : ' + code);
   const tile = (on: boolean) => ({ flex: 1, padding: 14, borderRadius: 16, borderWidth: on ? 2 : 1, borderColor: on ? C.copper : C.line, backgroundColor: C.card });
   return (
     <ScrollView contentContainerStyle={pad}>
       <Pressable onPress={back}><Text style={{ color: C.copper, fontSize: 24 }}>←</Text></Pressable>
       <Head title="Créer ma salle" />
-      <View style={{ alignSelf: 'center', width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderStyle: 'dashed', borderColor: C.copper, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-        <Text style={{ color: C.copper, fontSize: 30 }}>+</Text><Text style={{ color: C.grey, fontSize: 11 }}>Photo (bientôt)</Text>
-      </View>
+      <Pressable onPress={pickPhoto} style={{ alignSelf: 'center', width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderStyle: 'dashed', borderColor: C.copper, alignItems: 'center', justifyContent: 'center', marginBottom: 20, overflow: 'hidden' }}>
+        {photo ? <Image source={{ uri: photo }} style={{ width: 120, height: 120 }} /> : <View style={{ alignItems: 'center' }}><Text style={{ color: C.copper, fontSize: 30 }}>+</Text><Text style={{ color: C.grey, fontSize: 11 }}>Ajouter une photo</Text></View>}
+      </Pressable>
       <View style={[card, { paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center' }]}>
         <TextInput value={name} onChangeText={setName} maxLength={50} placeholder="Nom de ta salle" placeholderTextColor={C.grey} style={{ flex: 1, color: C.cream, fontSize: 17 }} />
         <Text style={{ color: C.grey }}>{name.length}/50</Text>
@@ -144,11 +155,11 @@ export function Creer({ onCreate, back }: { onCreate: (r: Room) => void; back: (
         <View style={[card, { padding: 14, marginTop: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
           <Text style={{ color: C.grey }}>Ton code</Text>
           <Text style={{ color: C.cream, fontSize: 26, fontFamily: 'serif', letterSpacing: 5 }}>{code}</Text>
-          <Pressable onPress={() => Share.share({ message: code })} style={{ borderWidth: 1, borderColor: C.copper, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ color: C.copper }}>Copier</Text></Pressable>
+          <Pressable onPress={() => { Clipboard.setStringAsync(code).then(() => Alert.alert('Copié', code)); }} style={{ borderWidth: 1, borderColor: C.copper, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ color: C.copper }}>Copier</Text></Pressable>
         </View>
       )}
       <Text style={{ color: C.grey, marginTop: 14, textAlign: 'center' }}>4 DJ sur scène. Le public écoute sans limite.</Text>
-      <Pressable disabled={!name.trim()} onPress={() => onCreate({ name: name.trim(), pub, code: pub ? undefined : code, mine: true, n: 1 })} style={[btn, { marginTop: 22, opacity: name.trim() ? 1 : 0.4 }]}><Text style={{ color: C.bg, fontSize: 18 }}>Créer ma salle</Text></Pressable>
+      <Pressable disabled={!name.trim()} onPress={() => onCreate({ name: name.trim(), pub, code: pub ? undefined : code, mine: true, n: 1, photo: photo || undefined })} style={[btn, { marginTop: 22, opacity: name.trim() ? 1 : 0.4 }]}><Text style={{ color: C.bg, fontSize: 18 }}>Créer ma salle</Text></Pressable>
       <Pressable onPress={() => Linking.openURL('https://wa.me/?text=' + encodeURIComponent(msg))} style={{ marginTop: 12, borderWidth: 1, borderColor: C.line, borderRadius: 24, paddingVertical: 14, alignItems: 'center' }}><Text style={{ color: C.cream }}>Partager sur WhatsApp</Text></Pressable>
     </ScrollView>
   );
@@ -190,25 +201,45 @@ export function Classement() {
 
 export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => void }) {
   const [part, setPart] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [name, setName] = useState('Neguezi');
+  const ref = useRef<View>(null);
   const top = TDEMO.slice(0, 3);
+  async function pick() {
+    try {
+      const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.4 });
+      if (!r.canceled) setPhoto(r.assets[0].uri);
+    } catch (e: any) { Alert.alert('Erreur photo', String(e && e.message ? e.message : e)); }
+  }
+  async function share() {
+    try {
+      const uri = await captureRef(ref, { format: 'png', quality: 1 });
+      if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri);
+    } catch (e: any) { Alert.alert('Erreur partage', String(e && e.message ? e.message : e)); }
+  }
   return (
     <ScrollView contentContainerStyle={pad}>
       <Head title="Profil" />
       <View style={{ alignItems: 'center', marginBottom: 20 }}>
-        <Cover title="N" size={96} />
-        <Text style={{ color: C.cream, fontSize: 26, fontFamily: 'serif', marginTop: 10 }}>Neguezi</Text>
+        <Pressable onPress={pick} style={{ width: 96, height: 96, borderRadius: 48, borderWidth: 2, borderColor: C.copper, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: C.card }}>
+          {photo ? <Image source={{ uri: photo }} style={{ width: 96, height: 96 }} /> : <Text style={{ color: C.copper, fontSize: 34 }}>+</Text>}
+        </Pressable>
+        <TextInput value={name} onChangeText={setName} maxLength={24} style={{ color: C.cream, fontSize: 26, fontFamily: 'serif', marginTop: 10, textAlign: 'center' }} />
         <Text style={{ color: C.grey, fontStyle: 'italic' }}>La musique avec mes bons amis</Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
-        {[['128', 'Écoutes cette semaine'], [String(TDEMO.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
+        {[['128', 'Écoutes cette semaine'], [String(TRACKS.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
           <View key={l} style={[card, { flex: 1, padding: 12, alignItems: 'center' }]}><Text style={{ color: C.cream, fontSize: 26, fontFamily: 'serif' }}>{n}</Text><Text style={{ color: C.grey, fontSize: 11, textAlign: 'center' }}>{l}</Text></View>
         ))}
       </View>
-      <View style={[card, { padding: 14 }]}>
-        <Text style={{ color: C.cream, fontSize: 18, fontFamily: 'serif', marginBottom: 8 }}>Mon top de la semaine</Text>
-        {top.map((x, i) => <Text key={x.t} style={{ color: C.cream, marginVertical: 3 }}>{i + 1}. {x.t} <Text style={{ color: C.grey }}>· {x.n} écoutes</Text></Text>)}
-        <Pressable onPress={() => Share.share({ message: 'Mon top NEGUEZI : ' + top.map((x, i) => (i + 1) + '. ' + x.t).join(' · ') + ' — la musique avec tes bons amis' })} style={[btn, { marginTop: 12 }]}><Text style={{ color: C.bg }}>Partager mon top</Text></Pressable>
+      <View ref={ref} collapsable={false} style={[card, { padding: 16, backgroundColor: C.bg }]}>
+        <Text style={{ color: C.copper, fontSize: 22, fontFamily: 'serif', letterSpacing: 5, textAlign: 'center' }}>NEGUEZI</Text>
+        <Text style={{ color: C.cream, fontSize: 18, fontFamily: 'serif', textAlign: 'center', marginBottom: 10 }}>Mon top de la semaine</Text>
+        {top.map((x, i) => <Text key={x.t} style={{ color: C.cream, marginVertical: 4, fontSize: 16 }}>{i + 1}. {x.t} <Text style={{ color: C.grey }}>· {x.n} écoutes</Text></Text>)}
+        <Text style={{ color: C.copper, textAlign: 'center', marginTop: 10 }}>Top de {name}</Text>
+        <Text style={{ color: C.grey, textAlign: 'center', fontSize: 12, fontStyle: 'italic' }}>la musique avec tes bons amis</Text>
       </View>
+      <Pressable onPress={share} style={[btn, { marginTop: 12 }]}><Text style={{ color: C.bg }}>Partager mon top</Text></Pressable>
       <View style={[card, { padding: 14, marginTop: 14, flexDirection: 'row', alignItems: 'center' }]}>
         <View style={{ flex: 1 }}><Text style={{ color: C.cream, fontSize: 16 }}>Participer au classement</Text><Text style={{ color: C.grey, fontSize: 12 }}>Ton top 3 est envoyé chaque jeudi</Text></View>
         <Switch value={part} onValueChange={setPart} trackColor={{ false: '#3A241C', true: C.red }} thumbColor={part ? C.copper : C.grey} />

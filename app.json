@@ -31,6 +31,13 @@
             "audio"
           ]
         }
+      ],
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "NEGUEZI utilise tes photos pour ton profil et ta salle."
+        }
       ]
     ],
     "backgroundColor": "#1E0F0C"

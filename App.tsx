@@ -4,6 +4,7 @@ import * as MediaLibrary from 'expo-media-library';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
+import { Scene } from './src/scene';
 import { Sons, Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [mine, setMine] = useState<Room | null>(null);
+  const [room, setRoom] = useState<Room | null>(null);
   const [, setVer] = useState(0);
   const player = useRef<any>(null);
 
@@ -75,23 +77,24 @@ export default function App() {
   }, [playing, cur]);
 
   const tabs: [string, string, string][] = [['sons', 'Mes sons', '♪'], ['salles', 'Salles', '◉'], ['classement', 'Classement', '♛'], ['profil', 'Profil', '●']];
-  const active = screen === 'lecteur' ? 'sons' : screen === 'creer' ? 'salles' : screen;
+  const active = screen === 'lecteur' ? 'sons' : screen === 'creer' || screen === 'scene' ? 'salles' : screen;
   const top = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
   const has = TRACKS.length > 0 && !!TRACKS[cur];
 
   let body: React.ReactNode = null;
   if (screen === 'sons') body = <Sons cur={cur} playing={playing} onPick={pick} onAsk={loadMusic} />;
   if (screen === 'lecteur' && has) body = <Lecteur cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
-  if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} />;
+  if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
   if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
   if (screen === 'classement') body = <Classement />;
-  if (screen === 'profil') body = <Profil mine={mine} openRoom={() => setScreen(mine ? 'salles' : 'creer')} />;
+  if (screen === 'scene' && room) body = <Scene room={room} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('salles')} />;
+  if (screen === 'profil') body = <Profil mine={mine} openRoom={() => { if (mine) { setRoom(mine); setScreen('scene'); } else setScreen('creer'); }} />;
 
   return (
     <View style={{ flex: 1, backgroundColor: C.bg, paddingTop: top }}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
       <View style={{ flex: 1 }}>{body}</View>
-      {screen !== 'lecteur' && has && (
+      {screen !== 'lecteur' && screen !== 'scene' && has && (
         <Pressable onPress={() => setScreen('lecteur')} style={{ position: 'absolute', left: 12, right: 12, bottom: 118, backgroundColor: C.card, borderWidth: 1, borderColor: C.copper, borderRadius: 18, padding: 8, flexDirection: 'row', alignItems: 'center' }}>
           <Cover title={TRACKS[cur].t} size={40} />
           <View style={{ flex: 1, marginLeft: 10 }}><Text numberOfLines={1} style={{ color: C.cream }}>{TRACKS[cur].t}</Text><Text style={{ color: C.grey, fontSize: 12 }}>Artiste inconnu · {fmt(time)}</Text></View>
