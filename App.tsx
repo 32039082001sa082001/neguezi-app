@@ -8,6 +8,10 @@ import { Scene } from './src/scene';
 import { Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
 import { SonsNeuf, MiniLecteur, BarreBas, Ouverture, SERIF, LecteurNeuf } from './src/sons';
 import { MesSonsNuit, LectureNuit } from './src/univers';
+import { VilleSons } from './src/ville';
+import { LectureVille } from './src/lecture';
+import { BarreVille } from './src/barre';
+import { BackHandler } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces';
 import { Manrope_500Medium } from '@expo-google-fonts/manrope';
@@ -17,6 +21,7 @@ export default function App() {
   const fade = useRef(new Animated.Value(1)).current;
   const logoIn = useRef(new Animated.Value(0)).current;
   const [screen, setScreen] = useState('sons');
+  useEffect(() => { const h = BackHandler.addEventListener('hardwareBackPress', () => { if (screen === 'sons') return false; setScreen(screen === 'creer' || screen === 'scene' ? 'salles' : 'sons'); return true; }); return () => h.remove(); }, [screen]);
   const [cur, setCur] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -106,8 +111,8 @@ export default function App() {
   const has = TRACKS.length > 0 && !!TRACKS[cur];
 
   let body: React.ReactNode = null;
-  if (screen === 'sons') body = <MesSonsNuit cur={cur} onPick={pick} onAsk={loadMusic} uni={uni} setUni={setUni} />;
-  if (screen === 'lecteur' && has) body = <LectureNuit uni={uni} loop={loop} setLoop={setLoop} shuf={shuf} setShuf={setShuf} eff={eff} setEff={applyEff} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
+  if (screen === 'sons') body = <VilleSons cur={cur} onPick={pick} onAsk={loadMusic} uni={uni} setUni={setUni} />;
+  if (screen === 'lecteur' && has) body = <LectureVille uni={uni} loop={loop} setLoop={setLoop} shuf={shuf} setShuf={setShuf} eff={eff} setEff={applyEff} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
   if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
   if (screen === 'classement') body = <Classement />;
@@ -122,7 +127,7 @@ export default function App() {
       {screen !== 'lecteur' && screen !== 'scene' && has && (
         <MiniLecteur t={TRACKS[cur]} i={cur} playing={playing} time={time} toggle={toggle} next={next} open={() => setScreen('lecteur')} />
       )}
-      <BarreBas tabs={tabs} active={active} go={(k: string) => setScreen(k)} />
+      <BarreVille tabs={tabs} active={active} go={(k: string) => setScreen(k)} />
       {splash && (
         <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center', opacity: fade }}>
           <Animated.View style={{ alignItems: 'center', opacity: logoIn, transform: [{ scale: logoIn.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
