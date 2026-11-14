@@ -5,7 +5,12 @@ import { C, TRACKS, fmt } from './theme';
 export const AMB = '#E99A42', LUM = '#FFB45C', ESP = '#1E0F0C';
 export const SERIF = 'Fraunces_600SemiBold', SANS = 'Manrope_500Medium';
 const G: [string, string][] = [['#C9773B', '#7A2E1D'], ['#E99A42', '#7A2E1D'], ['#FFB45C', '#C9773B'], ['#7A2E1D', '#1E0F0C']];
-export function Pochette({ t, i, s }: { t: string; i: number; s: number }) {
+export function Pochette({ t, i, s, img }: { t: string; i: number; s: number; img?: boolean }) {
+  if (img) return (
+    <View style={{ width: s, height: s, borderRadius: s / 2, overflow: 'hidden', borderWidth: 1, borderColor: C.copper }}>
+      <Animated.Image source={require('../assets/lecteur.png')} style={{ position: 'absolute', width: s * 1.7, height: s * 1.7, left: -s * 0.214, top: -s * 0.435 }} />
+    </View>
+  );
   return (
     <LinearGradient colors={G[i % 4]} style={{ width: s, height: s, borderRadius: s / 2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.copper }}>
       <Text style={{ color: C.cream, fontFamily: SERIF, fontSize: s * 0.42 }}>{(t[0] || '?').toUpperCase()}</Text>
@@ -40,11 +45,17 @@ export function Egaliseur({ playing }: { playing: boolean }) {
   );
 }
 export function Ligne({ t, i, on, playing, onPick }: { t: any; i: number; on: boolean; playing: boolean; onPick: (i: number) => void }) {
+  const ap = React.useRef(new Animated.Value(0)).current;
+  const pu = React.useRef(new Animated.Value(0)).current;
+  React.useEffect(() => { Animated.timing(ap, { toValue: 1, duration: 420, delay: Math.min(i, 8) * 70, useNativeDriver: true }).start(); }, []);
+  React.useEffect(() => { if (!on) { pu.setValue(0); return; } const l = Animated.loop(Animated.sequence([Animated.timing(pu, { toValue: 1, duration: 1200, useNativeDriver: true }), Animated.timing(pu, { toValue: 0, duration: 1200, useNativeDriver: true })])); l.start(); return () => l.stop(); }, [on]);
   return (
+    <Animated.View style={{ opacity: ap, transform: [{ translateY: ap.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] }}>
+      {on && <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 14, right: 14, top: 0, bottom: 12, borderRadius: 30, backgroundColor: '#FFB45C', opacity: pu.interpolate({ inputRange: [0, 1], outputRange: [0.03, 0.2] }) }} />}
     <Pressable onPress={() => onPick(i)} style={{ marginHorizontal: 14, marginBottom: 12 }}>
       <LinearGradient colors={on ? ['#7A2E1D', '#1E0F0C'] : ['#2A1612', '#1E0F0C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ minHeight: 108, flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 30, borderWidth: on ? 1.5 : 1, borderColor: on ? LUM : 'rgba(201,119,59,0.25)' }}>
         {on && <View style={{ position: 'absolute', left: -34, top: -21 }}><Disque on={on} playing={playing} /></View>}
-        <View style={{ marginLeft: on ? 58 : 0 }}><Pochette t={t.t} i={i} s={84} /></View>
+        <View style={{ marginLeft: on ? 58 : 0 }}><Pochette t={t.t} i={i} s={84} img={on} /></View>
         <View style={{ flex: 1, marginLeft: 14 }}>
           <Text numberOfLines={1} style={{ color: C.cream, fontFamily: SERIF, fontSize: 22 }}>{t.t}</Text>
           <Text style={{ color: C.grey, fontFamily: SANS, fontSize: 16 }}>Artiste inconnu</Text>
@@ -53,6 +64,7 @@ export function Ligne({ t, i, on, playing, onPick }: { t: any; i: number; on: bo
         {on && <View style={{ position: 'absolute', left: 150, bottom: 6 }}><Egaliseur playing={playing} /></View>}
       </LinearGradient>
     </Pressable>
+    </Animated.View>
   );
 }
 import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
@@ -80,7 +92,8 @@ export function SonsNeuf({ cur, playing, onPick, onAsk }: { cur: number; playing
     </View>
   );
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 260 }}>
+    <LinearGradient colors={['#1E0F0C', '#3A1A10', '#7A2E1D']} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 260 }}>
       <Entete n={TRACKS.length} />
       <View style={{ flexDirection: 'row', marginHorizontal: 14, marginBottom: 18, borderRadius: 32, borderWidth: 1, borderColor: 'rgba(201,119,59,0.5)', overflow: 'hidden' }}>
         {['Sons', 'Albums', 'Pistes'].map((x) => (
@@ -94,6 +107,7 @@ export function SonsNeuf({ cur, playing, onPick, onAsk }: { cur: number; playing
       {tab === 'Albums' ? <Text style={{ color: C.cream, fontFamily: SERIF, fontSize: 20, marginHorizontal: 28 }}>Mes ajouts · {TRACKS.length} sons</Text>
         : TRACKS.map((t, i) => <Ligne key={t.t + i} t={t} i={i} on={i === cur} playing={playing} onPick={onPick} />)}
     </ScrollView>
+    </LinearGradient>
   );
 }
 export function MiniLecteur({ t, i, playing, time, toggle, next, open }: any) {
@@ -148,6 +162,11 @@ export function LecteurNeuf({ eff, setEff, cur, playing, time, toggle, next, pre
       </View>
       <View style={{ width: 340, height: 340 }}>
         <Animated.Image source={require('../assets/lecteur.png')} style={{ width: 340, height: 340 }} />
+        <View pointerEvents="none" style={{ position: 'absolute', left: 300, top: -70, width: 20, height: 240, transform: [{ rotate: (8 + p * 20) + 'deg' }] }}>
+          <View style={{ position: 'absolute', left: 7, top: 120, width: 6, height: 150, borderRadius: 3, backgroundColor: '#E99A42' }} />
+          <View style={{ position: 'absolute', left: 3, top: 262, width: 14, height: 26, borderRadius: 4, backgroundColor: '#FFB45C' }} />
+          <View style={{ position: 'absolute', left: 0, top: 110, width: 20, height: 20, borderRadius: 10, backgroundColor: '#C9773B' }} />
+        </View>
         <Effets eff={eff} setEff={setEff} />
       </View>
       <Text numberOfLines={1} style={{ color: C.cream, fontFamily: SERIF, fontSize: 34, marginTop: 10 }}>{t ? t.t : ''}</Text>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StatusBar, Animated, Platform, Alert } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
+import * as MediaLibrary from 'expo-media-library/legacy';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
@@ -23,7 +23,7 @@ export default function App() {
   const [room, setRoom] = useState<Room | null>(null);
   const [, setVer] = useState(0);
   const player = useRef<any>(null);
-  useFonts({ Fraunces_600SemiBold, Manrope_500Medium });
+  const [fontsOk] = useFonts({ Fraunces_600SemiBold, Manrope_500Medium });
   const [eff, setEff] = useState('');
   function applyEff(k: string) {
     const n = eff === k ? '' : k;
@@ -105,6 +105,7 @@ export default function App() {
   if (screen === 'scene' && room) body = <Scene room={room} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('salles')} />;
   if (screen === 'profil') body = <Profil mine={mine} openRoom={() => { if (mine) { setRoom(mine); setScreen('scene'); } else setScreen('creer'); }} />;
 
+  if (fontsOk === false) return null;
   return (
     <View style={{ flex: 1, backgroundColor: C.bg, paddingTop: top }}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
