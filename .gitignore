@@ -41,3 +41,4 @@ yarn-error.*
 /android
 *.bak*
 .ts.log
+*.jpgbak
