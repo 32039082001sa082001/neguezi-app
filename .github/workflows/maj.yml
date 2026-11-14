@@ -1,0 +1,14 @@
+name: maj
+on: workflow_dispatch
+jobs:
+  maj:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx eas-cli update --channel production --environment production --platform android --non-interactive --message "maj"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
