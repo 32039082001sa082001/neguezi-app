@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Switch, Share, Linking, Alert } from 'react-native';
-import { C, TRACKS, fmt } from './theme';
+import { C, TRACKS, DEMO, fmt } from './theme';
 import { Pill, Cover, Vinyl, Head } from './ui';
 
-const pad = { padding: 20, paddingBottom: 170 };
+const pad = { padding: 20, paddingBottom: 220 };
 const card = { backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.line };
 const btn = { backgroundColor: C.copper, borderRadius: 24, paddingVertical: 14, alignItems: 'center' as const };
 
-export function Sons({ cur, playing, onPick }: { cur: number; playing: boolean; onPick: (i: number) => void }) {
+export function Sons({ cur, playing, onPick, onAsk }: { cur: number; playing: boolean; onPick: (i: number) => void; onAsk: () => void }) {
   const [tab, setTab] = useState('Sons');
+  if (TRACKS.length === 0) return (
+    <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+      <Head title="Mes sons" />
+      <Text style={{ color: C.cream, fontSize: 18, fontFamily: 'serif' }}>Aucun son trouvé</Text>
+      <Text style={{ color: C.grey, marginTop: 6 }}>NEGUEZI lit la musique de ton téléphone. Autorise l'accès pour la voir ici.</Text>
+      <Pressable onPress={onAsk} style={[btn, { marginTop: 18 }]}><Text style={{ color: C.bg, fontSize: 17 }}>Autoriser l'accès à ma musique</Text></Pressable>
+    </View>
+  );
   return (
     <ScrollView contentContainerStyle={pad}>
       <Head title="Mes sons" />
@@ -53,9 +61,9 @@ export function Lecteur({ cur, playing, time, toggle, next, prev, back, goRank }
         <Text style={{ color: C.grey, fontSize: 12 }}>{fmt(time)}</Text><Text style={{ color: C.grey, fontSize: 12 }}>{fmt(t.d)}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 28, marginTop: 14 }}>
-        <Pressable onPress={prev} style={rb}><Text style={{ color: C.cream, fontSize: 20 }}>⏮</Text></Pressable>
-        <Pressable onPress={toggle} style={[rb, { width: 76, height: 76, borderRadius: 38, backgroundColor: C.copper }]}><Text style={{ color: C.bg, fontSize: 28 }}>{playing ? '⏸' : '▶'}</Text></Pressable>
-        <Pressable onPress={next} style={rb}><Text style={{ color: C.cream, fontSize: 20 }}>⏭</Text></Pressable>
+        <Pressable onPress={prev} style={rb}><Text style={{ color: C.cream, fontSize: 20 }}>|◄</Text></Pressable>
+        <Pressable onPress={toggle} style={[rb, { width: 76, height: 76, borderRadius: 38, backgroundColor: C.copper }]}><Text style={{ color: C.bg, fontSize: 28 }}>{playing ? '❚❚' : '►'}</Text></Pressable>
+        <Pressable onPress={next} style={rb}><Text style={{ color: C.cream, fontSize: 20 }}>►|</Text></Pressable>
       </View>
       <View style={{ flexDirection: 'row', gap: 12, marginTop: 22 }}>
         {[['VOIX', voix, setVoix], ['INSTRU', instru, setInstru]].map(([n, v, f]) => (
@@ -158,16 +166,16 @@ export function Classement() {
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', gap: 10, marginBottom: 22 }}>
         {pod.map((i) => (
           <View key={i} style={{ alignItems: 'center', width: 100 }}>
-            <Cover title={TRACKS[i].t} size={i === 0 ? 92 : 68} />
+            <Cover title={DEMO[i].t} size={i === 0 ? 92 : 68} />
             <View style={{ backgroundColor: C.red, borderWidth: 1, borderColor: C.copper, width: '100%', height: i === 0 ? 70 : 50, marginTop: 8, borderTopLeftRadius: 10, borderTopRightRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: C.cream, fontSize: 28, fontFamily: 'serif' }}>{i + 1}</Text>
             </View>
-            <Text numberOfLines={1} style={{ color: C.cream, fontSize: 12, marginTop: 4 }}>{TRACKS[i].t}</Text>
-            <Text style={{ color: C.grey, fontSize: 11 }}>{TRACKS[i].n} écoutes</Text>
+            <Text numberOfLines={1} style={{ color: C.cream, fontSize: 12, marginTop: 4 }}>{DEMO[i].t}</Text>
+            <Text style={{ color: C.grey, fontSize: 11 }}>{DEMO[i].n} écoutes</Text>
           </View>
         ))}
       </View>
-      {TRACKS.slice(3).map((x, k) => (
+      {DEMO.slice(3).map((x, k) => (
         <View key={x.t} style={[card, { flexDirection: 'row', alignItems: 'center', padding: 10, marginBottom: 10 }]}>
           <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: C.red, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.cream }}>{k + 4}</Text></View>
           <Text style={{ flex: 1, color: C.cream, fontSize: 16, marginLeft: 12 }}>{x.t}</Text>
@@ -182,7 +190,7 @@ export function Classement() {
 
 export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => void }) {
   const [part, setPart] = useState(false);
-  const top = TRACKS.slice(0, 3);
+  const top = DEMO.slice(0, 3);
   return (
     <ScrollView contentContainerStyle={pad}>
       <Head title="Profil" />
@@ -192,7 +200,7 @@ export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => 
         <Text style={{ color: C.grey, fontStyle: 'italic' }}>La musique avec mes bons amis</Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
-        {[['128', 'Écoutes cette semaine'], [String(TRACKS.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
+        {[['128', 'Écoutes cette semaine'], [String(DEMO.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
           <View key={l} style={[card, { flex: 1, padding: 12, alignItems: 'center' }]}><Text style={{ color: C.cream, fontSize: 26, fontFamily: 'serif' }}>{n}</Text><Text style={{ color: C.grey, fontSize: 11, textAlign: 'center' }}>{l}</Text></View>
         ))}
       </View>

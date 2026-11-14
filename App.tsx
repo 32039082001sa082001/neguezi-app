@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, StatusBar, Animated, Platform } from 'react-native';
-import { C, TRACKS, fmt } from './src/theme';
+import { View, Text, Pressable, StatusBar, Animated, Platform, Alert } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
+import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
 import { Sons, Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
 
@@ -13,31 +15,73 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [mine, setMine] = useState<Room | null>(null);
+  const [, setVer] = useState(0);
+  const player = useRef<any>(null);
+
+  async function loadMusic() {
+    try {
+      const p = await MediaLibrary.requestPermissionsAsync(false, ['audio']);
+      if (!p.granted) { Alert.alert('Accès refusé', "Autorise l'accès à la musique dans les réglages Android de NEGUEZI."); return; }
+      let all: any[] = [];
+      let after: string | undefined;
+      for (let k = 0; k < 10; k++) {
+        const r: any = await MediaLibrary.getAssetsAsync({ mediaType: 'audio', first: 200, after });
+        all = all.concat(r.assets);
+        if (!r.hasNextPage) break;
+        after = r.endCursor;
+      }
+      setTracks(all.filter((a) => a.duration > 20).map((a) => ({ t: String(a.filename).replace(/\.[^.]+$/, ''), d: Math.round(a.duration), n: 0, uri: a.uri })));
+      setVer((v) => v + 1);
+    } catch (e: any) { Alert.alert('Erreur musique', String(e && e.message ? e.message : e)); }
+  }
 
   useEffect(() => {
     Animated.timing(logoIn, { toValue: 1, duration: 1400, useNativeDriver: true }).start();
     const t = setTimeout(() => { Animated.timing(fade, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => setSplash(false)); }, 2600);
+    setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+    loadMusic();
     return () => clearTimeout(t);
   }, []);
 
+  function pick(i: number) {
+    const t = TRACKS[i];
+    if (!t || !t.uri) return;
+    setCur(i); setTime(0);
+    if (!player.current) player.current = createAudioPlayer({ uri: t.uri });
+    else player.current.replace({ uri: t.uri });
+    player.current.play();
+    setPlaying(true);
+  }
+  function toggle() {
+    if (!TRACKS.length) return;
+    if (!player.current) { pick(cur); return; }
+    if (playing) player.current.pause(); else player.current.play();
+    setPlaying(!playing);
+  }
+  const next = () => { if (TRACKS.length) pick((cur + 1) % TRACKS.length); };
+  const prev = () => { if (TRACKS.length) pick((cur - 1 + TRACKS.length) % TRACKS.length); };
+
   useEffect(() => {
     if (!playing) return;
-    const id = setInterval(() => setTime((x) => x + 1), 1000);
+    const id = setInterval(() => {
+      const p = player.current;
+      if (!p) return;
+      const ct = p.currentTime || 0;
+      setTime(Math.floor(ct));
+      const d = TRACKS[cur] ? TRACKS[cur].d : 0;
+      if (d && ct >= d - 0.6) next();
+    }, 500);
     return () => clearInterval(id);
-  }, [playing]);
-
-  const pick = (i: number) => { setCur(i); setTime(0); setPlaying(true); };
-  const next = () => pick((cur + 1) % TRACKS.length);
-  const prev = () => pick((cur - 1 + TRACKS.length) % TRACKS.length);
-  useEffect(() => { if (time >= TRACKS[cur].d) next(); }, [time]);
+  }, [playing, cur]);
 
   const tabs: [string, string, string][] = [['sons', 'Mes sons', '♪'], ['salles', 'Salles', '◉'], ['classement', 'Classement', '♛'], ['profil', 'Profil', '●']];
   const active = screen === 'lecteur' ? 'sons' : screen === 'creer' ? 'salles' : screen;
   const top = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
+  const has = TRACKS.length > 0 && !!TRACKS[cur];
 
   let body: React.ReactNode = null;
-  if (screen === 'sons') body = <Sons cur={cur} playing={playing} onPick={pick} />;
-  if (screen === 'lecteur') body = <Lecteur cur={cur} playing={playing} time={time} toggle={() => setPlaying(!playing)} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
+  if (screen === 'sons') body = <Sons cur={cur} playing={playing} onPick={pick} onAsk={loadMusic} />;
+  if (screen === 'lecteur' && has) body = <Lecteur cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} />;
   if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
   if (screen === 'classement') body = <Classement />;
@@ -47,14 +91,14 @@ export default function App() {
     <View style={{ flex: 1, backgroundColor: C.bg, paddingTop: top }}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
       <View style={{ flex: 1 }}>{body}</View>
-      {screen !== 'lecteur' && (
-        <Pressable onPress={() => setScreen('lecteur')} style={{ position: 'absolute', left: 12, right: 12, bottom: 74, backgroundColor: C.card, borderWidth: 1, borderColor: C.copper, borderRadius: 18, padding: 8, flexDirection: 'row', alignItems: 'center' }}>
+      {screen !== 'lecteur' && has && (
+        <Pressable onPress={() => setScreen('lecteur')} style={{ position: 'absolute', left: 12, right: 12, bottom: 118, backgroundColor: C.card, borderWidth: 1, borderColor: C.copper, borderRadius: 18, padding: 8, flexDirection: 'row', alignItems: 'center' }}>
           <Cover title={TRACKS[cur].t} size={40} />
-          <View style={{ flex: 1, marginLeft: 10 }}><Text style={{ color: C.cream }}>{TRACKS[cur].t}</Text><Text style={{ color: C.grey, fontSize: 12 }}>Artiste inconnu · {fmt(time)}</Text></View>
-          <Pressable onPress={() => setPlaying(!playing)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.copper, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.bg, fontSize: 18 }}>{playing ? '⏸' : '▶'}</Text></Pressable>
+          <View style={{ flex: 1, marginLeft: 10 }}><Text numberOfLines={1} style={{ color: C.cream }}>{TRACKS[cur].t}</Text><Text style={{ color: C.grey, fontSize: 12 }}>Artiste inconnu · {fmt(time)}</Text></View>
+          <Pressable onPress={toggle} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.copper, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.bg, fontSize: 16 }}>{playing ? '❚❚' : '►'}</Text></Pressable>
         </Pressable>
       )}
-      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: C.line, backgroundColor: C.bg, paddingBottom: 10, paddingTop: 8 }}>
+      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: C.line, backgroundColor: C.bg, paddingBottom: Platform.OS === 'android' ? 44 : 10, paddingTop: 8 }}>
         {tabs.map(([k, l, g]) => (
           <Pressable key={k} onPress={() => setScreen(k)} style={{ flex: 1, alignItems: 'center' }}>
             <Text style={{ color: active === k ? C.copper : C.grey, fontSize: 20 }}>{g}</Text>

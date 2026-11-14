@@ -22,7 +22,17 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [],
+    "plugins": [
+      "expo-audio",
+      [
+        "expo-media-library",
+        {
+          "granularPermissions": [
+            "audio"
+          ]
+        }
+      ]
+    ],
     "backgroundColor": "#1E0F0C"
   }
 }
