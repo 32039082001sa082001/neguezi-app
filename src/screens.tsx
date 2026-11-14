@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Switch, Share, Linking, Alert } from 'react-native';
-import { C, TRACKS, DEMO, fmt } from './theme';
+import { C, TRACKS, DEMO as TDEMO, fmt } from './theme';
 import { Pill, Cover, Vinyl, Head } from './ui';
 
 const pad = { padding: 20, paddingBottom: 220 };
@@ -55,7 +55,7 @@ export function Lecteur({ cur, playing, time, toggle, next, prev, back, goRank }
       <Text style={{ color: C.cream, fontSize: 26, fontFamily: 'serif', textAlign: 'center', marginTop: 18 }}>{t.t}</Text>
       <Text style={{ color: C.grey, textAlign: 'center' }}>Artiste inconnu</Text>
       <View style={{ height: 4, backgroundColor: C.card, borderRadius: 2, marginTop: 18 }}>
-        <View style={{ height: 4, width: Math.min(100, (time / t.d) * 100) + '%', backgroundColor: C.copper, borderRadius: 2 }} />
+        <View style={{ height: 4, width: (Math.min(100, (time / t.d) * 100) + '%') as any, backgroundColor: C.copper, borderRadius: 2 }} />
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
         <Text style={{ color: C.grey, fontSize: 12 }}>{fmt(time)}</Text><Text style={{ color: C.grey, fontSize: 12 }}>{fmt(t.d)}</Text>
@@ -166,16 +166,16 @@ export function Classement() {
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', gap: 10, marginBottom: 22 }}>
         {pod.map((i) => (
           <View key={i} style={{ alignItems: 'center', width: 100 }}>
-            <Cover title={DEMO[i].t} size={i === 0 ? 92 : 68} />
+            <Cover title={TDEMO[i].t} size={i === 0 ? 92 : 68} />
             <View style={{ backgroundColor: C.red, borderWidth: 1, borderColor: C.copper, width: '100%', height: i === 0 ? 70 : 50, marginTop: 8, borderTopLeftRadius: 10, borderTopRightRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: C.cream, fontSize: 28, fontFamily: 'serif' }}>{i + 1}</Text>
             </View>
-            <Text numberOfLines={1} style={{ color: C.cream, fontSize: 12, marginTop: 4 }}>{DEMO[i].t}</Text>
-            <Text style={{ color: C.grey, fontSize: 11 }}>{DEMO[i].n} écoutes</Text>
+            <Text numberOfLines={1} style={{ color: C.cream, fontSize: 12, marginTop: 4 }}>{TDEMO[i].t}</Text>
+            <Text style={{ color: C.grey, fontSize: 11 }}>{TDEMO[i].n} écoutes</Text>
           </View>
         ))}
       </View>
-      {DEMO.slice(3).map((x, k) => (
+      {TDEMO.slice(3).map((x, k) => (
         <View key={x.t} style={[card, { flexDirection: 'row', alignItems: 'center', padding: 10, marginBottom: 10 }]}>
           <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: C.red, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.cream }}>{k + 4}</Text></View>
           <Text style={{ flex: 1, color: C.cream, fontSize: 16, marginLeft: 12 }}>{x.t}</Text>
@@ -190,7 +190,7 @@ export function Classement() {
 
 export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => void }) {
   const [part, setPart] = useState(false);
-  const top = DEMO.slice(0, 3);
+  const top = TDEMO.slice(0, 3);
   return (
     <ScrollView contentContainerStyle={pad}>
       <Head title="Profil" />
@@ -200,7 +200,7 @@ export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => 
         <Text style={{ color: C.grey, fontStyle: 'italic' }}>La musique avec mes bons amis</Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
-        {[['128', 'Écoutes cette semaine'], [String(DEMO.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
+        {[['128', 'Écoutes cette semaine'], [String(TDEMO.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
           <View key={l} style={[card, { flex: 1, padding: 12, alignItems: 'center' }]}><Text style={{ color: C.cream, fontSize: 26, fontFamily: 'serif' }}>{n}</Text><Text style={{ color: C.grey, fontSize: 11, textAlign: 'center' }}>{l}</Text></View>
         ))}
       </View>
