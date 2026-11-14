@@ -7,6 +7,7 @@ import { Logo, Cover } from './src/ui';
 import { Scene } from './src/scene';
 import { Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
 import { SonsNeuf, MiniLecteur, BarreBas, Ouverture, SERIF, LecteurNeuf } from './src/sons';
+import { MesSonsNuit, LectureNuit } from './src/univers';
 import { useFonts } from 'expo-font';
 import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces';
 import { Manrope_500Medium } from '@expo-google-fonts/manrope';
@@ -20,6 +21,9 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [mine, setMine] = useState<Room | null>(null);
+  const [loop, setLoop] = useState(false);
+  const [uni, setUni] = useState<'sky' | 'cons'>('sky');
+  const [shuf, setShuf] = useState(false);
   const [room, setRoom] = useState<Room | null>(null);
   const [, setVer] = useState(0);
   const player = useRef<any>(null);
@@ -74,7 +78,12 @@ export default function App() {
     if (playing) player.current.pause(); else player.current.play();
     setPlaying(!playing);
   }
-  const next = () => { if (TRACKS.length) pick((cur + 1) % TRACKS.length); };
+  const next = () => {
+    if (!TRACKS.length) return;
+    if (shuf && TRACKS.length > 1) { let j = cur; while (j === cur) j = Math.floor(Math.random() * TRACKS.length); pick(j); return; }
+    pick((cur + 1) % TRACKS.length);
+  };
+  const endNext = () => { if (loop) pick(cur); else next(); };
   const prev = () => { if (TRACKS.length) pick((cur - 1 + TRACKS.length) % TRACKS.length); };
 
   useEffect(() => {
@@ -86,10 +95,10 @@ export default function App() {
       setTime(Math.floor(ct));
       const d = TRACKS[cur] ? TRACKS[cur].d : 0;
       if (d) { try { p.volume = Math.max(0.05, Math.min(1, ct / 3, (d - ct) / 3)); } catch (e) {} }
-    if (d && ct >= d - 0.6) next();
+    if (d && ct >= d - 0.6) endNext();
     }, 500);
     return () => clearInterval(id);
-  }, [playing, cur]);
+  }, [playing, cur, loop, shuf]);
 
   const tabs: [string, string, string][] = [['sons', 'Mes sons', '♪'], ['salles', 'Salles', '◉'], ['classement', 'Classement', '♛'], ['profil', 'Profil', '●']];
   const active = screen === 'lecteur' ? 'sons' : screen === 'creer' || screen === 'scene' ? 'salles' : screen;
@@ -97,8 +106,8 @@ export default function App() {
   const has = TRACKS.length > 0 && !!TRACKS[cur];
 
   let body: React.ReactNode = null;
-  if (screen === 'sons') body = <SonsNeuf cur={cur} playing={playing} onPick={pick} onAsk={loadMusic} />;
-  if (screen === 'lecteur' && has) body = <LecteurNeuf eff={eff} setEff={applyEff} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
+  if (screen === 'sons') body = <MesSonsNuit cur={cur} onPick={pick} onAsk={loadMusic} uni={uni} setUni={setUni} />;
+  if (screen === 'lecteur' && has) body = <LectureNuit uni={uni} loop={loop} setLoop={setLoop} shuf={shuf} setShuf={setShuf} eff={eff} setEff={applyEff} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
   if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
   if (screen === 'classement') body = <Classement />;
@@ -107,8 +116,8 @@ export default function App() {
 
   if (fontsOk === false) return null;
   return (
-    <View style={{ flex: 1, backgroundColor: C.bg, paddingTop: top }}>
-      <StatusBar barStyle="light-content" backgroundColor={C.bg} />
+    <View style={{ flex: 1, backgroundColor: '#050A1A', paddingTop: top }}>
+      <StatusBar barStyle="light-content" backgroundColor="#050A1A" />
       <View style={{ flex: 1 }}>{body}</View>
       {screen !== 'lecteur' && screen !== 'scene' && has && (
         <MiniLecteur t={TRACKS[cur]} i={cur} playing={playing} time={time} toggle={toggle} next={next} open={() => setScreen('lecteur')} />

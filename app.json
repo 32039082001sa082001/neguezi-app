@@ -46,6 +46,21 @@
       ],
       "expo-font"
     ],
-    "backgroundColor": "#1E0F0C"
+    "backgroundColor": "#1E0F0C",
+    "extra": {
+      "eas": {
+        "projectId": "b2089f90-adbf-4e9e-9104-2a953339abf0"
+      }
+    },
+    "owner": "sassa2001",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b2089f90-adbf-4e9e-9104-2a953339abf0",
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
+    }
   }
 }
