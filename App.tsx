@@ -111,7 +111,7 @@ export default function App() {
   const has = TRACKS.length > 0 && !!TRACKS[cur];
 
   let body: React.ReactNode = null;
-  if (screen === 'sons') body = <VilleSons cur={cur} onPick={pick} onAsk={loadMusic} uni={uni} setUni={setUni} />;
+  if (screen === 'sons') body = <VilleSons playing={playing} cur={cur} onPick={pick} onAsk={loadMusic} uni={uni} setUni={setUni} />;
   if (screen === 'lecteur' && has) body = <LectureVille uni={uni} loop={loop} setLoop={setLoop} shuf={shuf} setShuf={setShuf} eff={eff} setEff={applyEff} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
   if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
