@@ -109,7 +109,6 @@ export default function App() {
       const ct = p.currentTime || 0;
       setTime(Math.floor(ct));
       const d = TRACKS[cur] ? TRACKS[cur].d : 0;
-      if (d) { try { p.volume = Math.max(0.05, Math.min(1, ct / 3, (d - ct) / 3)); } catch (e) {} }
     if (d && ct >= d - 0.6) endNext();
     }, 500);
     return () => clearInterval(id);
