@@ -4,16 +4,29 @@ import { getTime, getMeta, isPlaying } from './studio';
 import { analyser, statut } from './rythme';
 
 const D = 210;
+const NP = 14;
 export function Ronds() {
   const pulse = useRef(new Animated.Value(0)).current;
+  const flash = useRef(new Animated.Value(0)).current;
   const E = useRef([new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]).current;
+  const P = useRef(Array.from({ length: NP }, () => ({ v: new Animated.Value(0), x: 3 + Math.random() * 92, s: 2 + Math.random() * 3, d: 7000 + Math.random() * 6000, w: Math.random() * 6000 }))).current;
   const st = useRef<any>({ uri: '', beats: null, done: false, i: 0, last: 0, n: 0, idle: 0 }).current;
   const [, tk] = useState(0);
   useEffect(() => {
+    P.forEach((p) => {
+      Animated.sequence([
+        Animated.delay(p.w),
+        Animated.loop(Animated.timing(p.v, { toValue: 1, duration: p.d, easing: Easing.linear, useNativeDriver: true })),
+      ]).start();
+    });
     const fire = () => {
       Animated.sequence([
         Animated.timing(pulse, { toValue: 1, duration: 70, useNativeDriver: true }),
         Animated.timing(pulse, { toValue: 0, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      ]).start();
+      Animated.sequence([
+        Animated.timing(flash, { toValue: 1, duration: 60, useNativeDriver: true }),
+        Animated.timing(flash, { toValue: 0, duration: 380, easing: Easing.out(Easing.quad), useNativeDriver: true }),
       ]).start();
       const e = E[st.n % 4]; st.n++;
       e.setValue(0);
@@ -48,6 +61,8 @@ export function Ronds() {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#050A1A' }}>
       <Image source={require('../assets/fond.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }} />
+      {P.map((p, k) => (<Animated.View key={'p' + k} style={{ position: 'absolute', left: (p.x + '%') as any, top: 700, width: p.s, height: p.s, borderRadius: p.s / 2, backgroundColor: '#8FBEFF', opacity: p.v.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 0.9, 0.9, 0] }), transform: [{ translateY: p.v.interpolate({ inputRange: [0, 1], outputRange: [0, -680] }) }] }} />))}
+      <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#2F6BFF', opacity: flash.interpolate({ inputRange: [0, 1], outputRange: [0, 0.16] }) }} />
       <View style={{ position: 'absolute', top: 205, left: 0, right: 0, alignItems: 'center' }}>
         <View style={{ width: D, height: D, alignItems: 'center', justifyContent: 'center' }}>
           {E.map((e, k) => (<Animated.Image key={k} source={require('../assets/coeur.png')} style={{ position: 'absolute', width: D, height: D, opacity: e.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }), transform: [{ scale: e.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }] }} />))}
