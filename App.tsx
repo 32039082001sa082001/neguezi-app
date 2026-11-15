@@ -126,7 +126,7 @@ export default function App() {
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
   if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
   if (screen === 'classement') body = <Classement />;
-  if (screen === 'scene' && room) body = <Scene room={room} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('salles')} />;
+  if (screen === 'scene' && room) body = <Scene pick={pick} room={room} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('salles')} />;
   if (screen === 'profil') body = <Profil mine={mine} openRoom={() => { if (mine) { setRoom(mine); setScreen('scene'); } else setScreen('creer'); }} />;
 
   if (fontsOk === false) return null;

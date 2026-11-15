@@ -3,9 +3,10 @@ import { View, Text, Pressable, ScrollView, Image, Dimensions, Animated, Easing,
 import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
 import { TRACKS, fmt } from './theme';
+import { ListeSons } from './liste';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
-type P = { room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
+type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
 
 const W = Dimensions.get('window').width;
 const H = (W * 1672) / 941;
@@ -83,7 +84,7 @@ function Title({ children }: { children: string }) {
   return <Text style={{ color: TXT, textAlign: 'center', letterSpacing: 3, marginTop: 18, marginBottom: 8, fontWeight: '700', fontSize: 13 }}>{children}</Text>;
 }
 
-export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P) {
+export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back }: P) {
   useKeepAwake();
   const [fx, setFx] = useState<string[]>([]);
   const [snd, setSnd] = useState<string[]>([]);
@@ -92,6 +93,10 @@ export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P)
   const [voi, setVoi] = useState<string | null>(null);
   const [lit, setLit] = useState<string | null>(null);
   const [rec, setRec] = useState(false);
+  const [tab, setTab] = useState(0);
+  const [pk, setPk] = useState<number | null>(null);
+  const [q, setQ] = useState("");
+  const [s2, setS2] = useState<number | null>(null);
   const [secs, setSecs] = useState(0);
   const [fond, setFond] = useState(0.5);
   const fRef = useRef(0.5);
@@ -156,10 +161,12 @@ export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P)
             <Text style={{ color: TXT, fontWeight: '700', marginTop: 2, fontSize: 12 }}>{rec ? fmt(secs) : 'ENREGISTRER'}</Text>
           </View>
         </View>
+        <View style={{ flexDirection: 'row', gap: 10, marginHorizontal: 12, marginTop: 6 }}>{['TABLE', 'PADS'].map((n, k) => (<Pressable key={n} onPress={() => { buzz(); setTab(k); }} style={{ flex: 1, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: LINE, backgroundColor: tab === k ? AMB : CARD }}><Text style={{ color: tab === k ? '#1A0A04' : TXT, fontWeight: '800', letterSpacing: 2 }}>{n}</Text></Pressable>))}</View>
+{tab === 0 ? (<>
         <View style={{ marginHorizontal: 8, padding: 10, borderRadius: 24, backgroundColor: CARD, borderWidth: 1, borderColor: LINE }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ alignItems: 'center', width: DS }}>
-              <Disc size={DS} spin={playing} />
+              <Pressable onPress={() => { buzz(); setPk(1); }}><Disc size={DS} spin={playing} /></Pressable>
               <Text style={{ color: TXT, fontSize: 11, marginTop: 4, textAlign: 'center' }} numberOfLines={2}>{title}</Text>
             </View>
             <View style={{ flex: 1, alignItems: 'center' }}>
@@ -174,8 +181,8 @@ export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P)
               <Text style={{ color: DIM, fontSize: 11 }}>{fmt(time)}{d ? ' / ' + fmt(d) : ''}</Text>
             </View>
             <View style={{ alignItems: 'center', width: DS }}>
-              <Disc size={DS} spin={false} />
-              <Text style={{ color: DIM, fontSize: 11, marginTop: 4 }}>Son 2</Text>
+              <Pressable onPress={() => { buzz(); setPk(2); }}><Disc size={DS} spin={false} /></Pressable>
+              <Text style={{ color: DIM, fontSize: 11, marginTop: 4 }}>{s2 !== null && TRACKS[s2] ? TRACKS[s2].t : 'Son 2'}</Text>
             </View>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
@@ -202,6 +209,8 @@ export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P)
           </View>
           {track('VOIX', voi, setVoi)}
         </View>
+        </>) : null}
+        {tab === 1 ? (<>
         <Title>PADS BEATMAKER</Title>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginHorizontal: 16 }}>
           {PADS.map((k) => (
@@ -215,6 +224,7 @@ export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P)
         <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Écho', 'Salle', 'Radio', 'Boucle'].map((k) => chip(k, snd, setSnd))}</View>
         <Title>EFFETS DE LUMIÈRE</Title>
         <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Lasers', 'Flash', 'Fumée', 'Confettis'].map((k) => chip(k, fx, setFx))}</View>
+        </>) : null}
         <Title>SPECTATEURS · 0/4</Title>
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14 }}>
           {[0, 1, 2, 3].map((k) => (
@@ -224,6 +234,7 @@ export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P)
           ))}
         </View>
       </ScrollView>
+      {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => { if (pk === 1 && pick) pick(i); else setS2(i); setPk(null); setQ(''); }} /></View>) : null}
     </View>
   );
 }
