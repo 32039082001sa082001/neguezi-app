@@ -8,6 +8,7 @@ import { Lumieres } from './lumieres';
 import { Effets } from './effets';
 import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
 import { setVol } from './studio';
+import { boucleDemarre, boucleVerrouille, boucleLibere } from './boucle';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
 type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
@@ -207,7 +208,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
             <Text style={{ color: TXT, fontWeight: '800', textAlign: 'center', marginBottom: 8 }}>BOUCLE</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
               {[1, 2, 4].map((k) => (
-                <Pressable key={k} onPress={() => { buzz(); setLoop(k); }} style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: loop === k ? AMB : '#3A1A08', borderWidth: 1, borderColor: LINE }}>
+                <Pressable key={k} onPress={() => { buzz(); boucleDemarre(); if (loop === k) { boucleLibere(); setLoop(0); } else { if (boucleVerrouille(k)) setLoop(k); else setLoop(0); } }} style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: loop === k ? AMB : '#3A1A08', borderWidth: 1, borderColor: LINE }}>
                   <Text style={{ color: loop === k ? '#1A0A04' : TXT, fontWeight: '800' }}>{k}</Text>
                 </Pressable>
               ))}
