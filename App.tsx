@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StatusBar, Animated, Platform, Alert } from 'react-native';
 import * as MediaLibrary from 'expo-media-library/legacy';
+import { AppState } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { createFacade, setRemote, setEnd } from './src/studio';
 import { C, TRACKS, setTracks, fmt } from './src/theme';
@@ -56,7 +57,7 @@ export default function App() {
         if (!r.hasNextPage) break;
         after = r.endCursor;
       }
-      setTracks(all.filter((a) => a.duration > 20).map((a) => ({ t: String(a.filename).replace(/\.[^.]+$/, ''), d: Math.round(a.duration), n: 0, uri: a.uri, id: a.id, dt: a.creationTime || a.modificationTime || 0 })));
+      setTracks(all.filter((a) => a.duration > 5).map((a) => ({ t: String(a.filename).replace(/\.[^.]+$/, ''), d: Math.round(a.duration), n: 0, uri: a.uri, id: a.id, dt: a.creationTime || a.modificationTime || 0 })));
       setVer((v) => v + 1);
     } catch (e: any) { Alert.alert('Erreur musique', String(e && e.message ? e.message : e)); }
   }
@@ -66,7 +67,8 @@ export default function App() {
     const t = setTimeout(() => { Animated.timing(fade, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => setSplash(false)); }, 2600);
     setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' }).catch(() => {});
     loadMusic();
-    return () => clearTimeout(t);
+    const sub = AppState.addEventListener('change', (e: any) => { if (e === 'active') loadMusic(); });
+    return () => { clearTimeout(t); sub.remove(); };
   }, []);
 
   function fadeIn() {
