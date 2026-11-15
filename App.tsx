@@ -119,7 +119,7 @@ export default function App() {
     return () => clearInterval(id);
   }, [playing, cur, loop, shuf]);
 
-  useEffect(() => { setRemote({ play: () => { if (!playing) toggle(); }, pause: () => { if (playing) toggle(); }, next: () => next(), prev: () => prev() }); });
+  useEffect(() => { setRemote({ play: () => { toggle(); }, pause: () => { if (playing) toggle(); }, next: () => next(), prev: () => prev() }); });
   const tabs: [string, string, string][] = [['sons', 'Mes sons', '♪'], ['salles', 'Salles', '◉'], ['classement', 'Classement', '♛'], ['profil', 'Profil', '●']];
   const active = screen === 'lecteur' ? 'sons' : screen === 'creer' || screen === 'scene' ? 'salles' : screen;
   const top = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
