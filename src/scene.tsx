@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
 import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
+import { Lumieres } from './lumieres';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
 type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
@@ -141,7 +142,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
   return (
     <View style={{ flex: 1, backgroundColor: '#5A2608' }}>
       <Image source={require('../assets/studio2.png')} style={{ position: 'absolute', top: 0, left: 0, width: W, height: H }} />
-      <ScrollView contentContainerStyle={{ paddingBottom: 230 }}>
+      <Lumieres fx={fx} /><ScrollView contentContainerStyle={{ paddingBottom: 230 }}>
         <View style={{ height: H * 0.5 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 40, paddingHorizontal: 16 }}>
             <Pressable onPress={back} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, backgroundColor: CARD }}>
@@ -223,7 +224,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
         <Title>EFFETS DE SON</Title>
         <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Écho', 'Salle', 'Radio', 'Boucle'].map((k) => chip(k, snd, setSnd))}</View>
         <Title>EFFETS DE LUMIÈRE</Title>
-        <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Lasers', 'Flash', 'Fumée', 'Confettis'].map((k) => chip(k, fx, setFx))}</View>
+        <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Lasers', 'Flash', 'Braises', 'Bogolan'].map((k) => chip(k, fx, setFx))}</View>
         </>) : null}
         <Title>SPECTATEURS · 0/4</Title>
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14 }}>
