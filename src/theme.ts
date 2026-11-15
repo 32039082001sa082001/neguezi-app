@@ -1,5 +1,5 @@
 export const C = { bg: '#1E0F0C', card: '#2A1612', red: '#7A2E1D', copper: '#C9773B', cream: '#F2E6D0', grey: '#A89683', line: 'rgba(201,119,59,0.35)' };
-export type Track = { t: string; d: number; n: number; uri?: string };
+export type Track = { t: string; d: number; n: number; uri?: string; id?: string; dt?: number };
 export const DEMO: Track[] = [
   { t: 'Nuit à Bamako', d: 222, n: 128 },
   { t: 'Matin doré', d: 250, n: 96 },

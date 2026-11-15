@@ -56,7 +56,7 @@ export default function App() {
         if (!r.hasNextPage) break;
         after = r.endCursor;
       }
-      setTracks(all.filter((a) => a.duration > 20).map((a) => ({ t: String(a.filename).replace(/\.[^.]+$/, ''), d: Math.round(a.duration), n: 0, uri: a.uri })));
+      setTracks(all.filter((a) => a.duration > 20).map((a) => ({ t: String(a.filename).replace(/\.[^.]+$/, ''), d: Math.round(a.duration), n: 0, uri: a.uri, id: a.id, dt: a.creationTime || a.modificationTime || 0 })));
       setVer((v) => v + 1);
     } catch (e: any) { Alert.alert('Erreur musique', String(e && e.message ? e.message : e)); }
   }

@@ -53,6 +53,7 @@ function Ligne({ x, n, on, playing, onPress }: any) {
 
 export function ListeSons({ open, onClose, q, setQ, cur, playing, onPick }: any) {
   const [show, setShow] = useState(false);
+  const [ord, setOrd] = useState('rec');
   const a = useRef(new Animated.Value(0)).current;
   const sw = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -67,7 +68,8 @@ export function ListeSons({ open, onClose, q, setQ, cur, playing, onPick }: any)
     }
   }, [open]);
   if (!show) return null;
-  const data = TRACKS.map((x: any, i: number) => ({ x, i })).filter((o: any) => (o.x.t || '').toLowerCase().includes(q.toLowerCase()));
+  const data = TRACKS.map((x: any, i: number) => ({ x, i })).filter((o: any) => (o.x.t || '').toLowerCase().includes(q.toLowerCase()))
+    .sort((a: any, b: any) => ord === 'az' ? String(a.x.t).localeCompare(String(b.x.t)) : ord === 'old' ? (a.x.dt || 0) - (b.x.dt || 0) : (b.x.dt || 0) - (a.x.dt || 0));
   return (
     <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: a, backgroundColor: 'rgba(3,6,16,0.95)', transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [70, 0] }) }, { scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }] }}>
       <LinearGradient colors={['rgba(45,107,255,0.22)', 'rgba(3,6,16,0)']} pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 220 }} />
@@ -78,6 +80,7 @@ export function ListeSons({ open, onClose, q, setQ, cur, playing, onPick }: any)
         <Pressable onPress={onClose} style={{ marginLeft: 10, padding: 10 }}><Text style={{ color: '#EAF1FF', fontSize: 22 }}>X</Text></Pressable>
       </View>
       <Text style={{ color: '#8899BB', marginHorizontal: 20, marginTop: 12, marginBottom: 4 }}>{data.length} sons</Text>
+      <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16, marginBottom: 6 }}>{[['rec', 'Récents'], ['old', 'Anciens'], ['az', 'A-Z']].map((k) => (<Pressable key={k[0]} onPress={() => setOrd(k[0])} style={{ paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16, borderWidth: 1, borderColor: '#2D6BFF', backgroundColor: ord === k[0] ? '#2D6BFF' : 'rgba(13,27,60,0.75)' }}><Text style={{ color: '#EAF1FF', fontWeight: '700', fontSize: 13 }}>{k[1]}</Text></Pressable>))}</View>
       <FlatList data={data} keyExtractor={(o: any) => o.x.t + o.i} initialNumToRender={12} windowSize={7} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 20 }}
         renderItem={({ item, index }: any) => (<Ligne x={item.x} n={index} on={item.i === cur} playing={playing} onPress={() => onPick(item.i)} />)} />
       <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 140, opacity: sw.interpolate({ inputRange: [0, 0.15, 0.85, 1], outputRange: [0, 1, 1, 0] }), transform: [{ translateX: sw.interpolate({ inputRange: [0, 1], outputRange: [-140, W] }) }] }}>
