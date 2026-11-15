@@ -1,143 +1,118 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, Animated, Easing, ScrollView, Share, Alert } from 'react-native';
+import { View, Text, Pressable, Animated, Easing, ScrollView, Share, Dimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
-import { C, TRACKS, fmt } from './theme';
-import { Pill } from './ui';
+import { TRACKS, fmt } from './theme';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
 type P = { room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
-const AMBER = '#E8A33D';
-const RED = '#B8432A';
-const WARM = '#F5E6C8';
-const card = { backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.line };
 
-function Beam({ color, x, phase }: { color: string; x: number; phase: number }) {
+const W = Dimensions.get('window').width;
+const BG = '#1A0A04';
+const CARD = 'rgba(70,30,10,0.75)';
+const AMB = '#FF9A1F';
+const TXT = '#FFE9D0';
+const DIM = '#C79A78';
+const LINE = '#7A3D14';
+
+function Beam({ x, phase, on }: { x: number; phase: number; on: boolean }) {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const a = Animated.loop(Animated.sequence([
-      Animated.timing(v, { toValue: 1, duration: 2400 + phase * 400, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-      Animated.timing(v, { toValue: 0, duration: 2400 + phase * 400, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      Animated.timing(v, { toValue: 1, duration: 2200 + phase * 400, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      Animated.timing(v, { toValue: 0, duration: 2200 + phase * 400, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
     ]));
     a.start();
     return () => a.stop();
   }, []);
-  const rotate = v.interpolate({ inputRange: [0, 1], outputRange: ['-16deg', '16deg'] });
-  return <Animated.View style={{ position: 'absolute', top: -20, left: x, width: 46, height: 230, backgroundColor: color, opacity: 0.28, borderBottomLeftRadius: 40, borderBottomRightRadius: 40, transformOrigin: 'top', transform: [{ rotate }] }} />;
+  const rot = v.interpolate({ inputRange: [0, 1], outputRange: ['-18deg', '18deg'] });
+  return <Animated.View style={{ position: 'absolute', top: -20, left: x, width: 44, height: 260, backgroundColor: AMB, opacity: on ? 0.3 : 0.1, borderBottomLeftRadius: 40, borderBottomRightRadius: 40, transform: [{ rotate: rot }] }} />;
 }
+
+const DOTS = Array.from({ length: 22 }, (_, i) => ({ x: (i * 37) % (W - 10), c: ['#FF9A1F', '#FFD08A', '#FF5A1F', '#FFF1D6'][i % 4], d: (i % 5) * 80 }));
 
 export function Scene({ room, cur, playing, time, toggle, next, prev, back }: P) {
   useKeepAwake();
-  const [fx, setFx] = useState<string | null>(null);
-  const [left, setLeft] = useState(0);
-  const [light, setLight] = useState<string | null>(null);
-  const [tr, setTr] = useState('Fondu');
-  const [voix, setVoix] = useState(true);
-  const [instru, setInstru] = useState(true);
-  const [asked, setAsked] = useState(false);
   const t = TRACKS[cur];
-  const djs = room.mine ? ['Moi'] : ['Awa', 'Moussa', 'Fanta'];
+  const [fx, setFx] = useState<string | null>(null);
+  const [lasers, setLasers] = useState(true);
+  const [snd, setSnd] = useState<string[]>([]);
+  const [asked, setAsked] = useState(false);
+  const fxv = useRef(new Animated.Value(0)).current;
+  const prog = t && t.d ? Math.min(1, time / t.d) : 0;
+  const code = room.code || '------';
 
   function runFx(n: string) {
+    if (n === 'Lasers') { setLasers(!lasers); return; }
     if (fx) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    setFx(n); setLeft(3);
-    setTimeout(() => setLeft(2), 1000);
-    setTimeout(() => setLeft(1), 2000);
-    setTimeout(() => { setFx(null); setLeft(0); }, 3000);
+    setFx(n); fxv.setValue(1);
+    Animated.timing(fxv, { toValue: 0, duration: n === 'Flash' ? 700 : 2400, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(() => setFx(null));
   }
-  function runLight(n: string) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    setLight(n);
-    setTimeout(() => setLight(null), 3000);
-  }
-  function note() {
-    runFx('La note');
-    setTimeout(next, 3000);
-  }
-  const conf = Array.from({ length: 16 }, (_, i) => i);
+  function tog(n: string) { setSnd(snd.includes(n) ? snd.filter((x) => x !== n) : [...snd, n]); }
+  const btn = (on: boolean) => ({ flex: 1, alignItems: 'center' as const, paddingVertical: 12, borderRadius: 16, borderWidth: 1, borderColor: on ? AMB : LINE, backgroundColor: on ? 'rgba(255,154,31,0.22)' : CARD });
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-      <View style={{ height: 250, backgroundColor: '#120807', overflow: 'hidden' }}>
-        <Beam color={AMBER} x={30} phase={0} />
-        <Beam color={RED} x={150} phase={1} />
-        <Beam color={WARM} x={270} phase={2} />
-        {light === 'Lasers' && [0, 1, 2, 3, 4].map((i) => (
-          <View key={i} style={{ position: 'absolute', top: 0, left: '50%', width: 2, height: 260, backgroundColor: i % 2 ? RED : AMBER, transformOrigin: 'top', transform: [{ rotate: (-40 + i * 20) + 'deg' }] }} />
-        ))}
-        {light === 'Fumée' && [0, 1, 2, 3].map((i) => (
-          <View key={i} style={{ position: 'absolute', bottom: -20, left: (i * 25 - 5) + '%' as any, width: 130, height: 90, borderRadius: 60, backgroundColor: C.grey, opacity: 0.22 }} />
-        ))}
-        {light === 'Confettis' && conf.map((i) => (
-          <View key={i} style={{ position: 'absolute', left: ((i * 37) % 100) + '%' as any, top: ((i * 53) % 80) + '%' as any, width: 8, height: 12, backgroundColor: [AMBER, RED, WARM][i % 3] }} />
-        ))}
-        {light === 'Flash' && <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: WARM, opacity: 0.45 }} />}
-        <Pressable onPress={back} style={{ position: 'absolute', left: 14, top: 12, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(30,15,12,0.7)', alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.cream, fontSize: 20 }}>←</Text></Pressable>
-        <View style={{ position: 'absolute', right: 14, top: 14, backgroundColor: 'rgba(30,15,12,0.7)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ color: C.cream }}>{room.name}{room.code ? ' · ' + room.code : ''}</Text></View>
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 44, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', gap: 12 }}>
-          {[0, 1, 2, 3].map((i) => djs[i] ? (
-            <View key={i} style={{ alignItems: 'center' }}>
-              <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: '#3A241C', borderWidth: 1, borderColor: C.copper }} />
-              <View style={{ width: 54, height: 44, borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: '#3A241C', borderWidth: 1, borderColor: C.line, marginTop: -2 }} />
-              <Text style={{ color: C.cream, fontSize: 10 }}>{djs[i]}</Text>
-            </View>
-          ) : (
-            <Pressable key={i} onPress={() => { setAsked(true); Alert.alert('Demande envoyée', 'Le DJ en chef va te donner la main.'); }} style={{ width: 52, height: 52, borderRadius: 14, borderWidth: 1.5, borderStyle: 'dashed', borderColor: C.copper, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}><Text style={{ color: C.copper, fontSize: 26 }}>+</Text></Pressable>
-          ))}
-        </View>
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 40, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
-          {Array.from({ length: 12 }, (_, i) => (
-            <View key={i} style={{ alignItems: 'center' }}><View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: '#0A0504' }} /><View style={{ width: 26, height: 20, borderTopLeftRadius: 12, borderTopRightRadius: 12, backgroundColor: '#0A0504' }} /></View>
-          ))}
-        </View>
+    <View style={{ flex: 1, backgroundColor: BG }}>
+      <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 260, overflow: 'hidden' }}>
+        {[0, 1, 2, 3, 4, 5].map((k) => <Beam key={k} x={10 + k * ((W - 60) / 5)} phase={k % 3} on={lasers} />)}
       </View>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 44, paddingBottom: 60 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Pressable onPress={back} hitSlop={16}><Text style={{ color: TXT, fontSize: 28 }}>‹</Text></Pressable>
+          <Text style={{ color: TXT, fontSize: 20, fontWeight: '700', flex: 1, marginLeft: 12 }} numberOfLines={1}>{room.name || 'Ma salle'}</Text>
+          <View style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, borderWidth: 1, borderColor: LINE, backgroundColor: CARD }}><Text style={{ color: TXT }}>{room.mine ? 1 : 0}/6 présents</Text></View>
+        </View>
 
-      <View style={{ padding: 16 }}>
-        <Text style={{ color: C.cream, fontSize: 22, fontFamily: 'serif' }}>{t ? t.t : 'Aucun son'}</Text>
-        <Text style={{ color: C.grey }}>{room.mine ? "Tu es l'hôte" : "L'hôte contrôle la musique"}</Text>
-        <View style={{ height: 4, backgroundColor: C.card, borderRadius: 2, marginTop: 10 }}>
-          <View style={{ height: 4, width: (t ? Math.min(100, (time / t.d) * 100) : 0) + '%' as any, backgroundColor: C.copper, borderRadius: 2 }} />
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 26, marginTop: 14 }}>
-          <Pressable onPress={prev} style={{ width: 50, height: 50, borderRadius: 25, borderWidth: 1, borderColor: C.copper, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.cream }}>|◄</Text></Pressable>
-          <Pressable onPress={toggle} style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: C.copper, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.bg, fontSize: 24 }}>{playing ? '❚❚' : '►'}</Text></Pressable>
-          <Pressable onPress={next} style={{ width: 50, height: 50, borderRadius: 25, borderWidth: 1, borderColor: C.copper, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.cream }}>►|</Text></Pressable>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
-          <Pill label={'VOIX · ' + (voix ? 'ALLUMÉE' : 'COUPÉE')} on={voix} onPress={() => setVoix(!voix)} />
-          <Pill label={'INSTRU · ' + (instru ? 'ALLUMÉE' : 'COUPÉE')} on={instru} onPress={() => setInstru(!instru)} />
-        </View>
-        <Text style={{ color: C.grey, fontSize: 11, letterSpacing: 2, marginTop: 18, marginBottom: 8 }}>TRANSITION A/B</Text>
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-          {['Fondu', 'Échange', 'Coupe'].map((x) => <Pill key={x} label={x} on={tr === x} onPress={() => setTr(x)} />)}
-          <Pill label={fx === 'La note' ? 'LA NOTE · ' + left + ' s' : 'LA NOTE'} on={fx === 'La note'} onPress={note} />
-        </View>
-        <Text style={{ color: C.grey, fontSize: 11, letterSpacing: 2, marginTop: 18, marginBottom: 8 }}>EFFETS DE SON</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {['Écho', 'Salle', 'Radio', 'Boucle'].map((x) => (
-            <Pressable key={x} onPress={() => runFx(x)} style={[card, { flex: 1, paddingVertical: 16, alignItems: 'center', borderColor: fx === x ? C.copper : C.line }]}>
-              <Text style={{ color: fx === x ? C.copper : C.cream }}>{x}</Text>
-              {fx === x && <Text style={{ color: C.copper, fontSize: 11 }}>{left} s</Text>}
-            </Pressable>
+        <Text style={{ color: DIM, textAlign: 'center', marginTop: 110, letterSpacing: 4, fontSize: 11 }}>SCÈNE · 2 DJ</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 28, marginTop: 10 }}>
+          {[room.mine ? 'Moi' : 'DJ 1', 'Libre'].map((n, k) => (
+            <View key={k} style={{ alignItems: 'center' }}>
+              <View style={{ width: 70, height: 70, borderRadius: 35, borderWidth: 2, borderColor: k === 0 ? AMB : LINE, borderStyle: k === 0 ? 'solid' : 'dashed', alignItems: 'center', justifyContent: 'center', backgroundColor: CARD }}>
+                <Text style={{ color: AMB, fontSize: 28 }}>{k === 0 ? '🎧' : '+'}</Text>
+              </View>
+              <Text style={{ color: TXT, marginTop: 4, fontSize: 12 }}>{n}</Text>
+            </View>
           ))}
         </View>
-        <Text style={{ color: C.grey, fontSize: 11, letterSpacing: 2, marginTop: 18, marginBottom: 8 }}>EFFETS DE LUMIÈRE</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {['Lasers', 'Flash', 'Fumée', 'Confettis'].map((x) => (
-            <Pressable key={x} onPress={() => runLight(x)} style={[card, { flex: 1, paddingVertical: 16, alignItems: 'center', borderColor: light === x ? C.copper : C.line }]}>
-              <Text style={{ color: light === x ? C.copper : C.cream, fontSize: 12 }}>{x}</Text>
-            </Pressable>
-          ))}
+
+        <View style={{ marginTop: 18, padding: 14, borderRadius: 20, borderWidth: 1, borderColor: LINE, backgroundColor: CARD }}>
+          <Text style={{ color: TXT, fontSize: 20, fontWeight: '700' }} numberOfLines={1}>{t ? t.t : 'Aucune musique'}</Text>
+          <View style={{ height: 4, borderRadius: 2, backgroundColor: LINE, marginTop: 12 }}><View style={{ width: `${Math.round(prog * 100)}%` as any, height: 4, borderRadius: 2, backgroundColor: AMB }} /></View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+            <Text style={{ color: DIM, fontSize: 12 }}>{fmt(time)}</Text><Text style={{ color: DIM, fontSize: 12 }}>{t && t.d ? fmt(t.d) : ''}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 26, marginTop: 8 }}>
+            <Pressable onPress={prev} hitSlop={12}><Text style={{ color: TXT, fontSize: 30 }}>⏮</Text></Pressable>
+            <Pressable onPress={toggle} style={{ width: 70, height: 70, borderRadius: 35, backgroundColor: AMB, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 30, color: BG }}>{playing ? '⏸' : '▶'}</Text></Pressable>
+            <Pressable onPress={next} hitSlop={12}><Text style={{ color: TXT, fontSize: 30 }}>⏭</Text></Pressable>
+          </View>
         </View>
-        <Text style={{ color: C.grey, fontSize: 11, marginTop: 8 }}>Les effets de son sont visuels pour l'instant.</Text>
+
+        <Text style={{ color: DIM, textAlign: 'center', marginTop: 18, letterSpacing: 3, fontSize: 11 }}>EFFETS DE SON</Text>
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+          {['Écho', 'Salle', 'Radio', 'Boucle'].map((n) => <Pressable key={n} onPress={() => tog(n)} style={btn(snd.includes(n))}><Text style={{ color: TXT }}>{n}</Text></Pressable>)}
+        </View>
+
+        <Text style={{ color: DIM, textAlign: 'center', marginTop: 18, letterSpacing: 3, fontSize: 11 }}>EFFETS DE LUMIÈRE</Text>
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+          {['Lasers', 'Flash', 'Fumée', 'Confettis'].map((n) => <Pressable key={n} onPress={() => runFx(n)} style={btn(n === 'Lasers' ? lasers : fx === n)}><Text style={{ color: TXT, fontSize: 13 }}>{n}</Text></Pressable>)}
+        </View>
+
+        <Text style={{ color: DIM, textAlign: 'center', marginTop: 18, letterSpacing: 3, fontSize: 11 }}>SPECTATEURS · 0/4</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14, marginTop: 8 }}>
+          {[0, 1, 2, 3].map((k) => <View key={k} style={{ width: 52, height: 52, borderRadius: 26, borderWidth: 1, borderColor: LINE, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: DIM, fontSize: 22 }}>+</Text></View>)}
+        </View>
+
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
-          <Pressable onPress={() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {})} style={[card, { flex: 1, paddingVertical: 14, alignItems: 'center' }]}><Text style={{ color: C.cream }}>Applaudir</Text></Pressable>
-          <Pressable onPress={() => { setAsked(true); Alert.alert('Demande envoyée', 'Le DJ en chef va te donner la main.'); }} style={[card, { flex: 1, paddingVertical: 14, alignItems: 'center' }]}><Text style={{ color: C.cream }}>{asked ? 'Demandé' : 'Demander la main'}</Text></Pressable>
-          <Pressable onPress={() => Share.share({ message: 'Rejoins ma salle NEGUEZI « ' + room.name + ' » ' + (room.code ? 'Code : ' + room.code : '') })} style={[card, { flex: 1, paddingVertical: 14, alignItems: 'center' }]}><Text style={{ color: C.cream }}>Inviter un ami</Text></Pressable>
+          <Pressable onPress={() => setAsked(!asked)} style={{ flex: 1.4, paddingVertical: 15, borderRadius: 26, backgroundColor: asked ? LINE : AMB, alignItems: 'center' }}><Text style={{ color: asked ? TXT : BG, fontWeight: '700', fontSize: 15 }}>{asked ? 'Main demandée' : 'Demander la main'}</Text></Pressable>
+          <Pressable onPress={() => Share.share({ message: 'Rejoins ma salle NEGUEZI, code : ' + code }).catch(() => {})} style={{ flex: 1, paddingVertical: 15, borderRadius: 26, borderWidth: 1, borderColor: LINE, backgroundColor: CARD, alignItems: 'center' }}><Text style={{ color: TXT, fontSize: 14 }}>Inviter · {code}</Text></Pressable>
         </View>
-        <Text style={{ color: C.grey, textAlign: 'center', marginTop: 14, fontSize: 12 }}>{room.n} auditeurs · {djs.length}/4 DJ</Text>
-      </View>
-    </ScrollView>
+      </ScrollView>
+
+      {fx === 'Flash' ? <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#FFF1D6', opacity: fxv }} /> : null}
+      {fx === 'Fumée' ? <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#C9722A', opacity: fxv.interpolate({ inputRange: [0, 1], outputRange: [0, 0.4] }) }} /> : null}
+      {fx === 'Confettis' ? DOTS.map((d, k) => <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', top: 0, left: d.x, width: 8, height: 8, borderRadius: 2, backgroundColor: d.c, opacity: fxv, transform: [{ translateY: fxv.interpolate({ inputRange: [0, 1], outputRange: [900 + d.d, 0] }) }] }} />) : null}
+    </View>
   );
 }
