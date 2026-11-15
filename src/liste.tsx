@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, TextInput, Animated, Easing, FlatList, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TRACKS } from './theme';
+import * as MediaLibrary from 'expo-media-library';
+import { Alert } from 'react-native';
+const GONE: string[] = [];
 
 const W = Dimensions.get('window').width;
 const fmtD = (s: number) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
@@ -24,7 +27,7 @@ function Barres({ playing }: any) {
   );
 }
 
-function Ligne({ x, n, on, playing, onPress }: any) {
+function Ligne({ x, n, on, playing, onPress, onLong }: any) {
   const a = useRef(new Animated.Value(n < 10 ? 0 : 1)).current;
   const r = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -39,7 +42,7 @@ function Ligne({ x, n, on, playing, onPress }: any) {
   const spin = r.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   return (
     <Animated.View style={{ opacity: a, transform: [{ translateX: a.interpolate({ inputRange: [0, 1], outputRange: [46, 0] }) }] }}>
-      <Pressable onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 14, marginVertical: 5, paddingVertical: 9, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: on ? '#4D8DFF' : 'rgba(45,107,255,0.22)', backgroundColor: on ? 'rgba(45,107,255,0.16)' : 'rgba(13,27,60,0.55)' }}>
+      <Pressable onPress={onPress} onLongPress={onLong} style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 14, marginVertical: 5, paddingVertical: 9, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: on ? '#4D8DFF' : 'rgba(45,107,255,0.22)', backgroundColor: on ? 'rgba(45,107,255,0.16)' : 'rgba(13,27,60,0.55)' }}>
         <Animated.Image source={require('../assets/knob.png')} style={{ width: 46, height: 46, marginRight: 14, transform: [{ rotate: spin }] }} />
         <View style={{ flex: 1 }}>
           <Text numberOfLines={1} style={{ color: on ? '#EAF1FF' : '#D5E2FF', fontSize: 16, fontWeight: on ? '700' : '500' }}>{x.t}</Text>
@@ -54,6 +57,7 @@ function Ligne({ x, n, on, playing, onPress }: any) {
 export function ListeSons({ open, onClose, q, setQ, cur, playing, onPick }: any) {
   const [show, setShow] = useState(false);
   const [ord, setOrd] = useState('rec');
+  const [, bump] = useState(0);
   const a = useRef(new Animated.Value(0)).current;
   const sw = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -68,7 +72,7 @@ export function ListeSons({ open, onClose, q, setQ, cur, playing, onPick }: any)
     }
   }, [open]);
   if (!show) return null;
-  const data = TRACKS.map((x: any, i: number) => ({ x, i })).filter((o: any) => (o.x.t || '').toLowerCase().includes(q.toLowerCase()))
+  const data = TRACKS.map((x: any, i: number) => ({ x, i })).filter((o: any) => !GONE.includes(o.x.id || '') && (o.x.t || '').toLowerCase().includes(q.toLowerCase()))
     .sort((a: any, b: any) => ord === 'az' ? String(a.x.t).localeCompare(String(b.x.t)) : ord === 'old' ? (a.x.dt || 0) - (b.x.dt || 0) : (b.x.dt || 0) - (a.x.dt || 0));
   return (
     <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: a, backgroundColor: 'rgba(3,6,16,0.95)', transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [70, 0] }) }, { scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }] }}>
@@ -82,7 +86,7 @@ export function ListeSons({ open, onClose, q, setQ, cur, playing, onPick }: any)
       <Text style={{ color: '#8899BB', marginHorizontal: 20, marginTop: 12, marginBottom: 4 }}>{data.length} sons</Text>
       <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16, marginBottom: 6 }}>{[['rec', 'Récents'], ['old', 'Anciens'], ['az', 'A-Z']].map((k) => (<Pressable key={k[0]} onPress={() => setOrd(k[0])} style={{ paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16, borderWidth: 1, borderColor: '#2D6BFF', backgroundColor: ord === k[0] ? '#2D6BFF' : 'rgba(13,27,60,0.75)' }}><Text style={{ color: '#EAF1FF', fontWeight: '700', fontSize: 13 }}>{k[1]}</Text></Pressable>))}</View>
       <FlatList data={data} keyExtractor={(o: any) => o.x.t + o.i} initialNumToRender={12} windowSize={7} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={({ item, index }: any) => (<Ligne x={item.x} n={index} on={item.i === cur} playing={playing} onPress={() => onPick(item.i)} />)} />
+        renderItem={({ item, index }: any) => (<Ligne x={item.x} n={index} on={item.i === cur} playing={playing} onPress={() => onPick(item.i)} onLong={() => { if (item.i === cur) { Alert.alert('Son en cours', 'Choisis un autre son avant de supprimer celui-ci.'); return; } Alert.alert('Supprimer ce son ?', String(item.x.t), [{ text: 'Annuler', style: 'cancel' }, { text: 'Supprimer', style: 'destructive', onPress: async () => { try { if (!item.x.id) { Alert.alert('Impossible', 'Fichier non identifié.'); return; } const ok = await MediaLibrary.deleteAssetsAsync([item.x.id]); if (ok) { GONE.push(item.x.id); bump((v: number) => v + 1); } } catch (e) { Alert.alert('Erreur', 'Suppression impossible.'); } } }]); }} />)} />
       <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 140, opacity: sw.interpolate({ inputRange: [0, 0.15, 0.85, 1], outputRange: [0, 1, 1, 0] }), transform: [{ translateX: sw.interpolate({ inputRange: [0, 1], outputRange: [-140, W] }) }] }}>
         <LinearGradient colors={['rgba(77,141,255,0)', 'rgba(77,141,255,0.35)', 'rgba(77,141,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1 }} />
       </Animated.View>
