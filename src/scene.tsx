@@ -5,6 +5,7 @@ import { useKeepAwake } from 'expo-keep-awake';
 import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
 import { Lumieres } from './lumieres';
+import { Effets } from './effets';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
 type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
@@ -222,7 +223,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
           ))}
         </View>
         <Title>EFFETS DE SON</Title>
-        <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Écho', 'Salle', 'Radio', 'Boucle'].map((k) => chip(k, snd, setSnd))}</View>
+        <Effets onDrop={() => setFx(['Flash'])} />
         <Title>EFFETS DE LUMIÈRE</Title>
         <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Lasers', 'Flash', 'Braises', 'Bogolan'].map((k) => chip(k, fx, setFx))}</View>
         </>) : null}
