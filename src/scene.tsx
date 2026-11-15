@@ -8,6 +8,7 @@ import { Lumieres } from './lumieres';
 import { Effets } from './effets';
 import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
 import { setVol } from './studio';
+import { padPlay } from './pads';
 import { boucleDemarre, boucleVerrouille, boucleLibere } from './boucle';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
@@ -221,7 +222,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
         <Title>PADS BEATMAKER</Title>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginHorizontal: 16 }}>
           {PADS.map((k) => (
-            <Pressable key={k} onPressIn={() => { buzz(); setLit(k); }} onPressOut={() => setLit(null)} style={{ width: PW, height: PW, alignItems: 'center', justifyContent: 'center' }}>
+            <Pressable key={k} onPressIn={() => { buzz(); setLit(k); padPlay(k); }} onPressOut={() => setLit(null)} style={{ width: PW, height: PW, alignItems: 'center', justifyContent: 'center' }}>
               <Image source={require('../assets/pad.png')} style={{ position: 'absolute', width: PW, height: PW, opacity: lit === k ? 1 : 0.8 }} />
               <Text style={{ color: '#1A0A04', fontWeight: '800', fontSize: 13 }}>{k}</Text>
             </Pressable>
