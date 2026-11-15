@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, ImageBackground, ScrollView, Pressable, PanResponder, TextInput, BackHandler } from 'react-native';
+import { setBass, setConcert } from './studio';
+import { Pouls } from './pouls';
 import { TRACKS } from './theme';
 import { Halo, Reflet } from './anim';
 
@@ -7,6 +9,7 @@ const F = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 } as cons
 export function VilleSons({ cur, onPick, onAsk, playing }: any) {
   const t = TRACKS[cur];
   const [open, setOpen] = React.useState(false); const [q, setQ] = React.useState('');
+  const [fxb, setFxb] = React.useState(false); const [fxc, setFxc] = React.useState(false);
   React.useEffect(() => { if (!open) return; const s = BackHandler.addEventListener('hardwareBackPress', () => { setOpen(false); return true; }); return () => s.remove(); }, [open]);
   const R = React.useRef({ cur, onPick }); R.current = { cur, onPick };
   const pan = React.useRef(PanResponder.create({
@@ -16,7 +19,7 @@ export function VilleSons({ cur, onPick, onAsk, playing }: any) {
   })).current;
   return (
     <ImageBackground source={require('../assets/ville.png')} resizeMode="cover" style={F} {...pan.panHandlers}>
-      <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><Halo playing={playing} /><Reflet /></View>
+      <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><Halo playing={playing} /><Pouls playing={playing} /><Reflet /></View>
       <View style={{ position: 'absolute', top: 14, left: 20 }}><Text style={{ color: '#EAF1FF', fontSize: 38 }}>Mes sons</Text><Pressable onPress={onAsk} style={{ alignSelf: 'flex-start', marginTop: 10, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 16, borderWidth: 1, borderColor: '#4D8DFF', backgroundColor: 'rgba(45,107,255,0.25)' }}><Text style={{ color: '#EAF1FF', fontSize: 14 }}>Charger ma musique</Text></Pressable></View>
       <View style={{ position: 'absolute', top: '24%', left: 16, right: 16, alignItems: 'center' }}>
         <Text numberOfLines={1} style={{ color: '#EAF1FF', fontSize: 26, textAlign: 'center' }}>{t ? t.t : ''}</Text>
@@ -33,6 +36,8 @@ export function VilleSons({ cur, onPick, onAsk, playing }: any) {
         ))}
       </ScrollView>
     <Pressable onPress={() => setOpen(true)} style={{ position: 'absolute', top: 18, right: 16, width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(5,10,26,0.7)', borderWidth: 1, borderColor: '#4D8DFF' }}><Text style={{ color: '#EAF1FF', fontSize: 22 }}>☰</Text></Pressable>
+<Pressable onPress={() => { const v = !fxb; setFxb(v); setBass(v); }} style={{ position: 'absolute', top: 76, right: 16, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, borderColor: fxb ? '#4D8DFF' : '#1B3A8A', backgroundColor: fxb ? '#2D6BFF' : 'rgba(5,10,26,0.7)' }}><Text style={{ color: '#EAF1FF', fontSize: 13 }}>Basses</Text></Pressable>
+<Pressable onPress={() => { const v = !fxc; setFxc(v); setConcert(v); }} style={{ position: 'absolute', top: 120, right: 16, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, borderColor: fxc ? '#4D8DFF' : '#1B3A8A', backgroundColor: fxc ? '#2D6BFF' : 'rgba(5,10,26,0.7)' }}><Text style={{ color: '#EAF1FF', fontSize: 13 }}>Concert</Text></Pressable>
 {open && (<View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(3,6,16,0.94)', paddingTop: 44, paddingHorizontal: 16, paddingBottom: 16 }}>
 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 <TextInput value={q} onChangeText={setQ} placeholder="Rechercher un son" placeholderTextColor="#8899BB" style={{ flex: 1, color: '#EAF1FF', fontSize: 16, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 20, borderWidth: 1, borderColor: '#1B3A8A', backgroundColor: 'rgba(13,27,60,0.8)' }} />

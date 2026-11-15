@@ -44,7 +44,8 @@
           "photosPermission": "NEGUEZI utilise tes photos pour ton profil et ta salle."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "react-native-audio-api"
     ],
     "backgroundColor": "#1E0F0C",
     "extra": {

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StatusBar, Animated, Platform, Alert } from 'react-native';
 import * as MediaLibrary from 'expo-media-library/legacy';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
+import { createFacade, setRemote } from './src/studio';
 import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
 import { Scene } from './src/scene';
@@ -79,8 +80,8 @@ export default function App() {
     const t = TRACKS[i];
     if (!t || !t.uri) return;
     setCur(i); setTime(0);
-    if (!player.current) player.current = createAudioPlayer({ uri: t.uri });
-    else player.current.replace({ uri: t.uri });
+    if (!player.current) player.current = createFacade({ uri: t.uri, d: t.d, t: t.t });
+    else player.current.replace({ uri: t.uri, d: t.d, t: t.t });
     try { player.current.setActiveForLockScreen(true, { title: t.t, artist: 'NEGUEZI' }); } catch (e) {}
     player.current.play();
     fadeIn();
@@ -114,6 +115,7 @@ export default function App() {
     return () => clearInterval(id);
   }, [playing, cur, loop, shuf]);
 
+  useEffect(() => { setRemote({ play: () => { if (!playing) toggle(); }, pause: () => { if (playing) toggle(); }, next: () => next(), prev: () => prev() }); });
   const tabs: [string, string, string][] = [['sons', 'Mes sons', '♪'], ['salles', 'Salles', '◉'], ['classement', 'Classement', '♛'], ['profil', 'Profil', '●']];
   const active = screen === 'lecteur' ? 'sons' : screen === 'creer' || screen === 'scene' ? 'salles' : screen;
   const top = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
