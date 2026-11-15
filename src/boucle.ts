@@ -28,7 +28,7 @@ export function boucleDemarre() {
         analyser(u, m.d).then((r: any) => { if (uri === u) beats = r && r.length ? r : null; });
       }
       if (a < 0 || !isPlaying()) return;
-      if (getTime() >= b - 0.03) seekTo(a);
+      if (getTime() >= b - 0.08) seekTo(a);
     } catch (e) {}
-  }, 30);
+  }, 10);
 }
