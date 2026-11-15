@@ -1,3 +1,6 @@
+import { Dimensions } from 'react-native';
+import { useState as useS } from 'react';
+import { seekTo } from './studio';
 import React from 'react';
 import { View, Text, ImageBackground, Pressable } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
@@ -15,7 +18,9 @@ function Ic({ n, c, s }: any) {
 }
 export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, prev, back, loop, setLoop, shuf, setShuf }: any) {
   const t = TRACKS[cur];
-  const p = t && t.d ? Math.min(1, time / t.d) : 0;
+  const [dr, setDr] = useS<number | null>(null);
+  const fr = (x: number) => Math.max(0, Math.min(1, (x - 24) / (Dimensions.get('window').width - 48)));
+  const p = dr !== null ? dr : (t && t.d ? Math.min(1, time / t.d) : 0);
   return (
     <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><Ronds />
       <Pressable onPress={back} hitSlop={16} style={{ position: 'absolute', top: 18, left: 16 }}>
@@ -25,7 +30,7 @@ export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, pr
         <Text numberOfLines={2} style={{ color: '#EAF1FF', fontSize: 30, textAlign: 'center' }}>{t ? t.t : ''}</Text>
         <Text style={{ color: '#4D8DFF', fontSize: 17, marginTop: 6 }}>Artiste inconnu</Text>
       </View>
-      <View style={{ position: 'absolute', left: 24, right: 24, bottom: 200 }}>
+      <View style={{ position: 'absolute', left: 24, right: 24, bottom: 190, paddingVertical: 10 }} onStartShouldSetResponder={() => true} onResponderTerminationRequest={() => false} onResponderGrant={(e: any) => setDr(fr(e.nativeEvent.pageX))} onResponderMove={(e: any) => setDr(fr(e.nativeEvent.pageX))} onResponderRelease={(e: any) => { const f = fr(e.nativeEvent.pageX); setDr(null); if (t && t.d) seekTo(f * t.d); }}>
         <View style={{ height: 4, borderRadius: 2, backgroundColor: '#1B3A8A' }}>
           <View style={{ width: `${Math.round(p * 100)}%` as any, height: 4, borderRadius: 2, backgroundColor: '#4D8DFF' }} />
         </View>
