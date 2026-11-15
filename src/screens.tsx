@@ -96,7 +96,7 @@ export function Lecteur({ cur, playing, time, toggle, next, prev, back, goRank }
 export type Room = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; photo?: string };
 const DEMO: Room[] = [{ name: 'Salle Bamako', pub: true, n: 24 }, { name: 'Soirée Ségou', pub: true, n: 61 }, { name: 'Matin doré', pub: true, n: 8 }];
 
-export function Salles({ mine, goCreate, open }: { mine: Room | null; goCreate: () => void; open: (r: Room) => void }) {
+function SallesOld({ mine, goCreate, open }: { mine: Room | null; goCreate: () => void; open: (r: Room) => void }) {
   const [code, setCode] = useState('');
   const rooms = mine && mine.pub ? [mine, ...DEMO] : DEMO;
   return (
@@ -123,7 +123,7 @@ export function Salles({ mine, goCreate, open }: { mine: Room | null; goCreate: 
 const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 const newCode = () => Array.from({ length: 6 }, () => L[Math.floor(Math.random() * L.length)]).join('');
 
-export function Creer({ onCreate, back }: { onCreate: (r: Room) => void; back: () => void }) {
+function CreerOld({ onCreate, back }: { onCreate: (r: Room) => void; back: () => void }) {
   const [name, setName] = useState('');
   const [pub, setPub] = useState(true);
   const [code] = useState(newCode);
@@ -251,3 +251,5 @@ export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => 
     </ScrollView>
   );
 }
+
+export { Salles, Creer } from './salles';
