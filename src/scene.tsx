@@ -6,6 +6,7 @@ import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
 import { Lumieres } from './lumieres';
 import { Effets } from './effets';
+import { deck2Load, deck2Play } from './deck2';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
 type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
@@ -236,7 +237,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
           ))}
         </View>
       </ScrollView>
-      {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => { if (pk === 1 && pick) pick(i); else setS2(i); setPk(null); setQ(''); }} /></View>) : null}
+      {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => { if (pk === 1 && pick) pick(i); else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); deck2Play(); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
     </View>
   );
 }
