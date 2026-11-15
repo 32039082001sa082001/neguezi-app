@@ -68,13 +68,22 @@ export default function App() {
     return () => clearTimeout(t);
   }, []);
 
+  function fadeIn() {
+    try {
+      const p: any = player.current; if (!p) return;
+      p.volume = 0; let v = 0;
+      const id = setInterval(() => { v += 0.1; try { p.volume = Math.min(v, 1); } catch (e) {} if (v >= 1) clearInterval(id); }, 100);
+    } catch (e) {}
+  }
   function pick(i: number) {
     const t = TRACKS[i];
     if (!t || !t.uri) return;
     setCur(i); setTime(0);
     if (!player.current) player.current = createAudioPlayer({ uri: t.uri });
     else player.current.replace({ uri: t.uri });
+    try { player.current.setActiveForLockScreen(true, { title: t.t, artist: 'NEGUEZI' }); } catch (e) {}
     player.current.play();
+    fadeIn();
     setPlaying(true);
   }
   function toggle() {
