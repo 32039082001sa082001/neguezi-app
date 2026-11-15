@@ -6,7 +6,7 @@ import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
 import { Lumieres } from './lumieres';
 import { Effets } from './effets';
-import { deck2Load, deck2Play } from './deck2';
+import { deck2Load, deck2Play, deck2Pause } from './deck2';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
 type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
@@ -100,6 +100,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
   const [pk, setPk] = useState<number | null>(null);
   const [q, setQ] = useState("");
   const [s2, setS2] = useState<number | null>(null);
+  const [s2p, setS2p] = useState(false);
   const [secs, setSecs] = useState(0);
   const [fond, setFond] = useState(0.5);
   const fRef = useRef(0.5);
@@ -184,7 +185,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
               <Text style={{ color: DIM, fontSize: 11 }}>{fmt(time)}{d ? ' / ' + fmt(d) : ''}</Text>
             </View>
             <View style={{ alignItems: 'center', width: DS }}>
-              <Pressable onPress={() => { buzz(); setPk(2); }}><Disc size={DS} spin={false} /></Pressable>
+              <Pressable onPress={() => { buzz(); setPk(2); }} onLongPress={() => { buzz(); if (s2 === null) return; if (s2p) { deck2Pause(); setS2p(false); } else { deck2Play(); setS2p(true); } }}><Disc size={DS} spin={s2p} /></Pressable>
               <Text style={{ color: DIM, fontSize: 11, marginTop: 4 }}>{s2 !== null && TRACKS[s2] ? TRACKS[s2].t : 'Son 2'}</Text>
             </View>
           </View>
@@ -237,7 +238,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
           ))}
         </View>
       </ScrollView>
-      {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => { if (pk === 1 && pick) pick(i); else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); deck2Play(); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
+      {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => { if (pk === 1 && pick) pick(i); else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); deck2Play(); setS2p(true); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
     </View>
   );
 }
