@@ -106,7 +106,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
   const [secs, setSecs] = useState(0);
   const [fond, setFond] = useState(0.5);
   const fRef = useRef(0.5);
-  useEffect(() => { try { setVol(Math.min(1, 2 * (1 - fond))); deck2Vol(Math.min(1, 2 * fond)); } catch (e) {} }, [fond, s2]);
+  useEffect(() => { try { setVol(Math.cos(fond * Math.PI / 2)); deck2Vol(Math.sin(fond * Math.PI / 2)); } catch (e) {} }, [fond, s2]);
   const st = useRef(0.5);
   const pr = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
