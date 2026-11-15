@@ -24,7 +24,7 @@ async function decoder(uri: string): Promise<any> {
 
 export async function analyser(uri: string, d: number): Promise<number[] | null> {
   if (cache[uri]) { msg = cache[uri].length + ' battements'; return cache[uri]; }
-  msg = "off"; return null;
+  msg = 'analyse...';
   try {
     if (!uri) { msg = 'echec: pas de fichier'; return null; }
     const buf = await decoder(uri);
