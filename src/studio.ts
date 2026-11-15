@@ -63,7 +63,7 @@ class Facade {
   replace(o: any) {
     this.tk++; this.rs = 'off'; this.stopSrc(); this.mode = 'fb'; this.off = 0; this.buf = null; this.meta = o || {};
     try {
-      if (!this.fb) this.fb = createAudioPlayer({ uri: o.uri });
+      if (!this.fb) { this.fb = createAudioPlayer({ uri: o.uri }); try { this.fb.addListener('playbackStatusUpdate', (s: any) => { if (s && s.didJustFinish && endCb) endCb(); }); } catch (e) {} }
       else this.fb.replace({ uri: o.uri });
       this.fb.volume = this.vol;
     } catch (e) {}
@@ -206,6 +206,8 @@ class Facade {
   }
 }
 
+let endCb: (() => void) | null = null;
+export function setEnd(f: (() => void) | null) { endCb = f; }
 export function createFacade(o: any): any {
   wire();
   const f = new Facade();

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StatusBar, Animated, Platform, Alert } from 'react-native';
 import * as MediaLibrary from 'expo-media-library/legacy';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
-import { createFacade, setRemote } from './src/studio';
+import { createFacade, setRemote, setEnd } from './src/studio';
 import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
 import { Scene } from './src/scene';
@@ -98,7 +98,10 @@ export default function App() {
     if (shuf && TRACKS.length > 1) { let j = cur; while (j === cur) j = Math.floor(Math.random() * TRACKS.length); pick(j); return; }
     pick((cur + 1) % TRACKS.length);
   };
-  const endNext = () => { if (loop) pick(cur); else next(); };
+  const lastEnd = useRef(0);
+  const endNext = () => { const n = Date.now(); if (n - lastEnd.current < 3000) return; lastEnd.current = n; if (loop) pick(cur); else next(); };
+  const endRef = useRef<any>(null); endRef.current = endNext;
+  useEffect(() => { setEnd(() => { if (endRef.current) endRef.current(); }); return () => setEnd(null); }, []);
   const prev = () => { if (TRACKS.length) pick((cur - 1 + TRACKS.length) % TRACKS.length); };
 
   useEffect(() => {
