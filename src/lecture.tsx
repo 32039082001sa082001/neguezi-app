@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ImageBackground, Pressable } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { TRACKS, fmt } from './theme';
+import { Platine } from './boutons';
 
 const L: string[][] = [['ralenti', 'Lent'], ['vitesse', 'Rapide'], ['enfant', 'Enfant'], ['grave', 'Grave'], ['ambiance', 'Ambiance']];
 const B = (on: boolean) => (on ? '#4D8DFF' : '#8899BB');
@@ -38,13 +39,7 @@ export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, pr
         <Pressable onPress={next}><Ic n="next" c="#EAF1FF" s={30} /></Pressable>
         <Pressable onPress={() => setLoop(!loop)}><Ic n="loop" c={B(loop)} s={24} /></Pressable>
       </View>
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 36, flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 8, paddingHorizontal: 12 }}>
-        {L.map(([k, l]) => (
-          <Pressable key={k} onPress={() => setEff(k)} style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 16, borderWidth: 1, borderColor: eff === k ? '#4D8DFF' : '#1B3A8A', backgroundColor: eff === k ? 'rgba(45,107,255,0.3)' : 'rgba(5,10,26,0.7)' }}>
-            <Text style={{ color: eff === k ? '#EAF1FF' : '#8899BB', fontSize: 13 }}>{l}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <Platine />
     </ImageBackground>
   );
 }
