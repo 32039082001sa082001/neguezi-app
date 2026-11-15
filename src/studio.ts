@@ -12,6 +12,7 @@ let wired = false;
 export function setRemote(r: any) { remote = r; }
 export function setTempo(v: number) { st.tempo = v; try { if (active) active.rate(); } catch (e) {} }
 export function setVoix(v: number) { st.voix = v; try { if (active) active.rate(); } catch (e) {} }
+export function setVol(v: number) { try { if (active) active.volume = v; } catch (e) {} }
 export function setSalle(v: number) { st.salle = v; try { if (active) active.room(); } catch (e) {} }
 export function getLevel(): number {
   try {

@@ -6,7 +6,8 @@ import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
 import { Lumieres } from './lumieres';
 import { Effets } from './effets';
-import { deck2Load, deck2Play, deck2Pause } from './deck2';
+import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
+import { setVol } from './studio';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
 type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
@@ -104,6 +105,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
   const [secs, setSecs] = useState(0);
   const [fond, setFond] = useState(0.5);
   const fRef = useRef(0.5);
+  useEffect(() => { try { setVol(Math.min(1, 2 * (1 - fond))); deck2Vol(Math.min(1, 2 * fond)); } catch (e) {} }, [fond, s2]);
   const st = useRef(0.5);
   const pr = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
