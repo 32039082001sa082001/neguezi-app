@@ -41,7 +41,7 @@ function wire() {
 class Facade {
   fb: any = null; ctx: any = null; src: any = null; buf: any = null;
   gain: any = null; wet: any = null; an: any = null; buf8: any = null;
-  mode = 'fb'; playing = false; off = 0; t0 = 0; cr = 1; vol = 1; tk = 0; loading = false; meta: any = {};
+  mode = 'fb'; rs = 'off'; err = ''; playing = false; off = 0; t0 = 0; cr = 1; vol = 1; tk = 0; loading = false; meta: any = {};
 
   constructor() { active = this; }
 
@@ -61,7 +61,7 @@ class Facade {
   }
 
   replace(o: any) {
-    this.tk++; this.stopSrc(); this.mode = 'fb'; this.off = 0; this.buf = null; this.meta = o || {};
+    this.tk++; this.rs = 'off'; this.stopSrc(); this.mode = 'fb'; this.off = 0; this.buf = null; this.meta = o || {};
     try {
       if (!this.fb) this.fb = createAudioPlayer({ uri: o.uri });
       else this.fb.replace({ uri: o.uri });
@@ -120,8 +120,9 @@ class Facade {
   room() {
     const on = st.salle > 0.02;
     try { if (this.wet) this.wet.gain.value = st.salle * 0.5; } catch (e) {}
-    if (on && this.mode === 'fb') this.load(this.meta.uri, this.meta.d, this.tk);
+    if (on && this.mode === 'fb' && this.rs !== 'fail' && this.rs !== 'long') this.load(this.meta.uri, this.meta.d, this.tk);
     if (!on && this.mode === 'st') this.toFb();
+    if (!on) this.rs = 'off';
   }
 
   toFb() {
@@ -183,21 +184,25 @@ class Facade {
   }
 
   async load(uri: string, d: number, tk: number) {
-    if (!lib || !uri || this.loading || (d && d > MAX_S) || st.salle <= 0.02) return;
+    if (st.salle <= 0.02 || this.loading) return;
+    if (!lib) { this.rs = 'fail'; this.err = 'module absent'; return; }
+    if (!uri) return;
+    if (d && d > MAX_S) { this.rs = 'long'; return; }
+    this.rs = 'load';
     this.loading = true;
     try {
       if (!this.ctx) this.build();
       const b = this.buf || await this.ctx.decodeAudioData(uri);
-      if (tk !== this.tk || st.salle <= 0.02) return;
+      if (tk !== this.tk || st.salle <= 0.02) { if (st.salle <= 0.02) this.rs = 'off'; return; }
       this.buf = b;
       let pos = 0;
       try { pos = this.fb.currentTime || 0; } catch (e) {}
       const was = this.playing;
       if (was) { try { this.fb.pause(); } catch (e) {} }
-      this.off = pos; this.mode = 'st';
+      this.off = pos; this.mode = 'st'; this.rs = 'on';
       if (was) this.startSrc();
-    } catch (e) { this.mode = 'fb'; }
-    finally { this.loading = false; }
+    } catch (e: any) { this.mode = 'fb'; this.rs = 'fail'; this.err = String((e && e.message) || e).slice(0, 80); }
+    finally { this.loading = false; if (tk !== this.tk && st.salle > 0.02) this.load(this.meta.uri, this.meta.d, this.tk); }
   }
 }
 
@@ -207,3 +212,8 @@ export function createFacade(o: any): any {
   f.replace(o);
   return f;
 }
+
+export function getTime(): number { try { return active ? active.currentTime : 0; } catch (e) { return 0; } }
+export function getMeta(): any { try { return active ? active.meta : null; } catch (e) { return null; } }
+export function isPlaying(): boolean { return !!(active && active.playing); }
+export function getRoom(): string { try { return active ? active.rs + '|' + active.err : 'off|'; } catch (e) { return 'off|'; } }

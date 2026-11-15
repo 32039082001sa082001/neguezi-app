@@ -3,6 +3,7 @@ import { View, Text, ImageBackground, Pressable } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { TRACKS, fmt } from './theme';
 import { Platine } from './boutons';
+import { Ronds } from './ronds';
 
 const L: string[][] = [['ralenti', 'Lent'], ['vitesse', 'Rapide'], ['enfant', 'Enfant'], ['grave', 'Grave'], ['ambiance', 'Ambiance']];
 const B = (on: boolean) => (on ? '#4D8DFF' : '#8899BB');
@@ -16,7 +17,7 @@ export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, pr
   const t = TRACKS[cur];
   const p = t && t.d ? Math.min(1, time / t.d) : 0;
   return (
-    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><Ronds />
       <Pressable onPress={back} hitSlop={16} style={{ position: 'absolute', top: 18, left: 16 }}>
         <Svg width={30} height={30} viewBox="0 0 24 24"><Path d="M6 9l6 6 6-6" stroke="#EAF1FF" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg>
       </Pressable>
