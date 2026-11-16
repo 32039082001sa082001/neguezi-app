@@ -7,6 +7,7 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { TRACKS, fmt } from './theme';
 import { Platine } from './boutons';
 import { Ronds } from './ronds';
+import { CoeurFx } from './animcoeur';
 
 const L: string[][] = [['ralenti', 'Lent'], ['vitesse', 'Rapide'], ['enfant', 'Enfant'], ['grave', 'Grave'], ['ambiance', 'Ambiance']];
 const B = (on: boolean) => (on ? '#4D8DFF' : '#8899BB');
@@ -22,7 +23,7 @@ export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, pr
   const fr = (x: number) => Math.max(0, Math.min(1, (x - 24) / (Dimensions.get('window').width - 48)));
   const p = dr !== null ? dr : (t && t.d ? Math.min(1, time / t.d) : 0);
   return (
-    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><Ronds />
+    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><Ronds /><CoeurFx />
       <Pressable onPress={back} hitSlop={16} style={{ position: 'absolute', top: 18, left: 16 }}>
         <Svg width={30} height={30} viewBox="0 0 24 24"><Path d="M6 9l6 6 6-6" stroke="#EAF1FF" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg>
       </Pressable>
