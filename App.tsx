@@ -74,7 +74,7 @@ export default function App() {
   function fadeIn() {
     try {
       const p: any = player.current; if (!p) return;
-      p.volume = 0; let v = 0;
+      if (AppState.currentState !== 'active') { p.volume = 1; return; } p.volume = 0; let v = 0;
       const id = setInterval(() => { v += 0.1; try { p.volume = Math.min(v, 1); } catch (e) {} if (v >= 1) clearInterval(id); }, 100);
     } catch (e) {}
   }
