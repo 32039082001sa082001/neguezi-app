@@ -79,9 +79,7 @@ export function CoeurFx() {
   return (
     <View pointerEvents="none" style={fill}>
       <Animated.View style={[fill, { backgroundColor: '#3a8cff', opacity: ip(fa, 0, 0.15) }]} />
-      <Animated.Image source={BO} resizeMode="cover"
-        style={{ position: 'absolute', top: 0, left: 0, width: W, height: H, opacity: bolt, transform: [{ translateX: bt }, { scaleX: bs }] }} />
-      <Animated.View style={{ opacity: ip(cn, 0.3, 0.95), ...fill }}>
+            <Animated.View style={{ opacity: ip(cn, 0.3, 0.95), ...fill }}>
         {LN.map(([a, b], k) => {
           const [x1, y1] = P[a], [x2, y2] = P[b], l = Math.hypot(x2 - x1, y2 - y1);
           return <View key={'l' + k} style={{ position: 'absolute', left: (x1 + x2) / 2 - l / 2, top: (y1 + y2) / 2, width: l, height: 1,
