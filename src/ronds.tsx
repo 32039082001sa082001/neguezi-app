@@ -1,3 +1,5 @@
+import { Animated as AnR, Easing as EaR } from 'react-native';
+import { useEffect as ueR, useRef as urR } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, Animated, Easing } from 'react-native';
 import { getTime, getMeta, isPlaying } from './studio';
@@ -66,10 +68,61 @@ export function Ronds() {
       <View style={{ position: 'absolute', top: 205, left: 0, right: 0, alignItems: 'center' }}>
         <View style={{ width: D, height: D, alignItems: 'center', justifyContent: 'center' }}>
           {E.map((e, k) => (<Animated.Image key={k} source={require('../assets/coeur.png')} style={{ position: 'absolute', width: D, height: D, opacity: e.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }), transform: [{ scale: e.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }] }} />))}
-          <Animated.Image source={require('../assets/coeur.png')} style={{ width: D, height: D, transform: [{ scale: sc }] }} />
+          <AnR.View pointerEvents="none" style={{ position: 'absolute', width: D, height: D, alignItems: 'center', justifyContent: 'center', transform: [{ scale: sc }] }}>{[1.9, 1.75, 1.6, 1.45, 1.3, 1.18].map((k, i) => (<AnR.View key={i} style={{ position: 'absolute', width: D * k, height: D * k, borderRadius: (D * k) / 2, backgroundColor: '#2F6BFF', opacity: sc.interpolate({ inputRange: [1, 1.12], outputRange: [0.05, 0.12] }) }} />))}</AnR.View><Animated.Image source={require('../assets/coeur.png')} style={{ width: D, height: D, transform: [{ scale: sc }] }} /><Reflet D={D} sc={sc} />
         </View>
       </View>
       <Text style={{ position: 'absolute', top: 432, left: 0, right: 0, textAlign: 'center', color: '#4D8DFF', fontSize: 11, letterSpacing: 6 }}>LES INVINCIBLES{'\n'}{statut()} {getTime().toFixed(1)}</Text>
     </View>
+  );
+}
+
+
+function BandeR({ D, x, w, o }: { D: number; x: any; w: number; o: number }) {
+  const neg = AnR.multiply(x, -1);
+  return (
+    <AnR.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, width: w, height: D, overflow: 'hidden', transform: [{ translateX: x }] }}>
+      <AnR.Image source={require('../assets/coeur.png')} style={{ position: 'absolute', top: 0, left: 0, width: D, height: D, tintColor: '#8FC0FF', opacity: o, transform: [{ translateX: neg }] }} />
+    </AnR.View>
+  );
+}
+
+function Reflet({ D, sc }: { D: number; sc: any }) {
+  const x = (urR(new AnR.Value(-D * 0.3)) as any).current;
+  ueR(() => {
+    AnR.loop(AnR.sequence([
+      AnR.delay(3200),
+      AnR.timing(x, { toValue: D * 1.2, duration: 1000, easing: EaR.inOut(EaR.quad), useNativeDriver: true }),
+      AnR.timing(x, { toValue: -D * 0.3, duration: 0, useNativeDriver: true }),
+    ])).start();
+  }, []);
+  return (
+    <AnR.View pointerEvents="none" style={{ position: 'absolute', width: D, height: D, transform: [{ scale: sc }] }}>
+      <BandeR D={D} x={x} w={D * 0.32} o={0.16} />
+      <BandeR D={D} x={x} w={D * 0.1} o={0.42} />
+      <Eclair D={D} sc={sc} />
+    </AnR.View>
+  );
+}
+
+
+function Eclair({ D, sc }: { D: number; sc: any }) {
+  const P = [[0.52, 0.15], [0.42, 0.38], [0.58, 0.52], [0.45, 0.72], [0.55, 0.88]];
+  const op = sc.interpolate({ inputRange: [1, 1.06, 1.12], outputRange: [0, 0, 1], extrapolate: 'clamp' });
+  return (
+    <AnR.View pointerEvents="none" style={{ position: 'absolute', width: D, height: D, opacity: op }}>
+      {P.slice(1).map((q, i) => {
+        const a = P[i];
+        const dx = (q[0] - a[0]) * D, dy = (q[1] - a[1]) * D;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const cx = ((a[0] + q[0]) / 2) * D, cy = ((a[1] + q[1]) / 2) * D;
+        const ang = Math.atan2(dy, dx) + 'rad';
+        return (
+          <React.Fragment key={i}>
+            <View style={{ position: 'absolute', left: cx - len / 2, top: cy - 5, width: len, height: 10, borderRadius: 5, backgroundColor: '#2F6BFF', opacity: 0.3, transform: [{ rotate: ang }] }} />
+            <View style={{ position: 'absolute', left: cx - len / 2, top: cy - 1.5, width: len, height: 3, borderRadius: 2, backgroundColor: '#DDEEFF', transform: [{ rotate: ang }] }} />
+          </React.Fragment>
+        );
+      })}
+    </AnR.View>
   );
 }

@@ -1,3 +1,4 @@
+import { Filante } from './filante';
 import { Dimensions as DimX, View as ViewX } from 'react-native';
 import { Dimensions } from 'react-native';
 import { useState as useS } from 'react';
@@ -26,7 +27,7 @@ export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, pr
   const fr = (x: number) => Math.max(0, Math.min(1, (x - 24) / (Dimensions.get('window').width - 48)));
   const p = dr !== null ? dr : (t && t.d ? Math.min(1, time / t.d) : 0);
   return (
-    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><ViewX pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: DimX.get('window').height * 0.13, bottom: DimX.get('window').height * 0.15, overflow: 'hidden' }}><ViewX pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: -DimX.get('window').height * 0.13, bottom: -DimX.get('window').height * 0.15 }}><Projos /><Brume /><Ambiance /></ViewX></ViewX><Ronds />
+    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><ViewX pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: DimX.get('window').height * 0.13, bottom: DimX.get('window').height * 0.15, overflow: 'hidden' }}><ViewX pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: -DimX.get('window').height * 0.13, bottom: -DimX.get('window').height * 0.15 }}><Projos /><Brume /><Ambiance /></ViewX></ViewX><Filante /><Ronds />
       <Pressable onPress={back} hitSlop={16} style={{ position: 'absolute', top: 18, left: 16 }}>
         <Svg width={30} height={30} viewBox="0 0 24 24"><Path d="M6 9l6 6 6-6" stroke="#EAF1FF" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg>
       </Pressable>
@@ -36,7 +37,11 @@ export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, pr
       </View>
       <View style={{ position: 'absolute', left: 24, right: 24, bottom: 190, paddingVertical: 10 }} onStartShouldSetResponder={() => true} onResponderTerminationRequest={() => false} onResponderGrant={(e: any) => setDr(fr(e.nativeEvent.pageX))} onResponderMove={(e: any) => setDr(fr(e.nativeEvent.pageX))} onResponderRelease={(e: any) => { const f = fr(e.nativeEvent.pageX); setDr(null); if (t && t.d) seekTo(f * t.d); }}>
         <View style={{ height: 4, borderRadius: 2, backgroundColor: '#1B3A8A' }}>
-          <View style={{ width: `${Math.round(p * 100)}%` as any, height: 4, borderRadius: 2, backgroundColor: '#4D8DFF' }} />
+          <View style={{ width: `${Math.round(p * 100)}%` as any, height: 4, borderRadius: 2, backgroundColor: '#4D8DFF' }}>
+            <View style={{ position: 'absolute', left: 0, right: 0, top: -3, height: 10, borderRadius: 5, backgroundColor: '#2F6BFF', opacity: 0.28 }} />
+            <View style={{ position: 'absolute', right: -9, top: -6, width: 16, height: 16, borderRadius: 8, backgroundColor: '#2F6BFF', opacity: 0.35 }} />
+            <View style={{ position: 'absolute', right: -5, top: -2, width: 8, height: 8, borderRadius: 4, backgroundColor: '#EAF4FF' }} />
+          </View>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
           <Text style={{ color: '#8899BB', fontSize: 13 }}>{fmt(time)}</Text><Text style={{ color: '#8899BB', fontSize: 13 }}>{t && t.d ? fmt(t.d) : ''}</Text>

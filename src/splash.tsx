@@ -1,25 +1,18 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, Easing } from 'react-native';
-const nat = { useNativeDriver: true };
+import { View, Animated, Dimensions } from 'react-native';
+const { width: W } = Dimensions.get('window');
 export function SplashNote() {
-  const fade = useRef(new Animated.Value(0)).current;
-  const breath = useRef(new Animated.Value(0)).current;
+  const op = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.timing(fade, { toValue: 1, duration: 600, easing: Easing.out(Easing.cubic), ...nat }).start();
-    Animated.loop(Animated.sequence([
-      Animated.timing(breath, { toValue: 1, duration: 1600, easing: Easing.inOut(Easing.sin), ...nat }),
-      Animated.timing(breath, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.sin), ...nat }),
-    ])).start();
+    Animated.sequence([
+      Animated.timing(op, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.delay(3100),
+      Animated.timing(op, { toValue: 0, duration: 500, useNativeDriver: true }),
+    ]).start();
   }, []);
-  const fill: any = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 };
   return (
-    <View style={[fill, { backgroundColor: '#000' }]}>
-      <Animated.Image
-        source={require('../assets/splash-brume.jpg')}
-        resizeMode="cover"
-        style={[fill, { opacity: fade, transform: [{ scale: breath.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] }) }] }]}
-      />
-      <Animated.View style={[fill, { backgroundColor: '#2F6BFF', opacity: breath.interpolate({ inputRange: [0, 1], outputRange: [0, 0.14] }) }]} />
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#02040F', alignItems: 'center', justifyContent: 'center' }}>
+      <Animated.Image source={require('../assets/splash-logo.jpg')} resizeMode="contain" style={{ width: W, height: W, opacity: op }} />
     </View>
   );
 }
