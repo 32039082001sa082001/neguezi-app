@@ -62,8 +62,6 @@ export function Ambiance() {
       {rn.map((y, i) => <Animated.View key={'r' + i} style={[A, { left: 0, top: 0, width: 2, height: 90, backgroundColor: '#7fb8ff',
         opacity: ip(y, [0, 0.1, 0.9, 1], [0, 0.6, 0.6, 0]),
         transform: [{ translateX: rx[i] }, { translateY: ip(y, [0, 1], [-100, H]) }] }]} />)}
-      {eq.map((v, i) => <Animated.View key={'e' + i} style={[A, { left: W / 2 - 2, top: CY - 20, width: 4, height: 40, borderRadius: 2,
-        backgroundColor: '#5aa8ff', transform: [{ rotate: (i * 360 / NB) + 'deg' }, { translateY: -130 }, { scaleY: v }] }]} />)}
       {sp.map((s, i) => <Animated.View key={'s' + i} style={[A, { left: W / 2 - 2, top: CY - 2, width: 4, height: 4, borderRadius: 2,
         backgroundColor: '#cfe6ff', opacity: ip(s, [0, 0.15, 1], [0, 1, 0]), transform: [{ translateX: Animated.multiply(s, dx[i]) },
         { translateY: Animated.add(Animated.multiply(s, dy[i]), ip(s, [0, 1], [0, 50])) }] }]} />)}

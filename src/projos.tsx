@@ -30,10 +30,15 @@ export function Projos() {
     } catch (e) {} }, 40);
     return () => clearInterval(id);
   }, []);
-  const L = (mirror: number) => (
-    <Animated.Image source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: -W * 0.3, width: W * 1.6, height: H,
-      opacity: f.interpolate({ inputRange: [0, 1], outputRange: [0.18, 0.7] }),
-      transform: [{ translateY: H / 2 }, { rotate: a.interpolate({ inputRange: [-1, 1], outputRange: mirror > 0 ? ['-18deg', '18deg'] : ['18deg', '-18deg'] }) }, { translateY: -H / 2 }, { scaleX: mirror }] }} />
+  const T = (w: number, c: string) => (
+    <View style={{ position: 'absolute', left: 90 - w, top: 0, width: 0, height: 0, borderLeftWidth: w, borderRightWidth: w, borderTopWidth: H, borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: c }} />
   );
-  return <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>{L(1)}{L(-1)}</View>;
+  const L = (x: number, d: number) => (
+    <Animated.View style={{ position: 'absolute', top: 0, left: x - 90, width: 180, height: H,
+      opacity: f.interpolate({ inputRange: [0, 1], outputRange: [0.35, 1] }),
+      transform: [{ translateY: H / 2 }, { rotate: a.interpolate({ inputRange: [-1, 1], outputRange: [-d + 'deg', d + 'deg'] }) }, { translateY: -H / 2 }] }}>
+      {T(90, 'rgba(40,110,255,0.10)')}{T(55, 'rgba(80,150,255,0.14)')}{T(22, 'rgba(170,205,255,0.20)')}
+    </Animated.View>
+  );
+  return <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>{L(W * 0.28, 22)}{L(W * 0.72, -22)}</View>;
 }
