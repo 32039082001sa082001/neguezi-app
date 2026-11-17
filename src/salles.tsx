@@ -6,12 +6,12 @@ import * as Clipboard from 'expo-clipboard';
 
 type Room = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; photo?: string };
 const W = Dimensions.get('window').width;
-const AMB = '#FF9A1F';
-const TXT = '#FFE9D0';
-const DIM = '#C79A78';
-const LINE = '#8A4516';
-const CARD = 'rgba(60,24,8,0.78)';
-const GRAD = ['#3A1606', '#1A0A04', '#0D0502'] as const;
+const AMB = '#2F6BFF';
+const TXT = '#EAF2FF';
+const DIM = '#9DBBFF';
+const LINE = '#2A5BE0';
+const CARD = 'rgba(8,24,70,0.78)';
+const GRAD = ['#0A1F5C', '#050A1A', '#02050F'] as const;
 
 function Beam({ x, phase }: { x: number; phase: number }) {
   const v = useRef(new Animated.Value(0)).current;

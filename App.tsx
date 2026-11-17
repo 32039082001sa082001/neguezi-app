@@ -1,3 +1,4 @@
+import { useEcoutes } from './src/ecoutes';
 import { getBg, useBg } from './src/accent';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StatusBar, Animated, Platform, Alert } from 'react-native';
@@ -29,6 +30,7 @@ export default function App() {
   useEffect(() => { const h = BackHandler.addEventListener('hardwareBackPress', () => { if (screen === 'sons') return false; setScreen(screen === 'creer' || screen === 'scene' ? 'salles' : 'sons'); return true; }); return () => h.remove(); }, [screen]);
   const [cur, setCur] = useState(0);
   const [playing, setPlaying] = useState(false);
+  useEcoutes(playing, cur);
   const [time, setTime] = useState(0);
   const [mine, setMine] = useState<Room | null>(null);
   const [loop, setLoop] = useState(false);

@@ -292,16 +292,6 @@ export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => 
           </View>
         ))}
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14, marginBottom: 18 }}>
-        {ACC.map(([nm, hx], i) => (
-          <Pressable key={nm} onPress={() => { setAccent(i); tick((n) => n + 1); }} style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: hx, borderWidth: getAccent() === i ? 3 : 1, borderColor: '#FFFFFF' }} />
-        ))}
-      </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14, marginBottom: 18 }}>
-        {BGS.map(([nm, hx], i) => (
-          <Pressable key={nm} onPress={() => { setBg(i); tick((n) => n + 1); }} style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: hx, borderWidth: getBgIndex() === i ? 3 : 1, borderColor: '#2F6BFF' }} />
-        ))}
-      </View>
       <View ref={ref} collapsable={false} style={[glass, { padding: 16, backgroundColor: H('#030818') }]}>
         <Text style={{ color: H('#7FB0FF'), fontSize: 20, fontFamily: 'serif', letterSpacing: 5, textAlign: 'center' }}>NEGUEZI</Text>
         <Text style={[gt, { fontSize: 18, textAlign: 'center', marginBottom: 12 }]}>Mon top de la semaine</Text>
