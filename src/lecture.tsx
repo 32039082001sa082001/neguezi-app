@@ -1,3 +1,4 @@
+import { Dimensions as DimX, View as ViewX } from 'react-native';
 import { Dimensions } from 'react-native';
 import { useState as useS } from 'react';
 import { seekTo } from './studio';
@@ -25,7 +26,7 @@ export function LectureVille({ eff, setEff, cur, playing, time, toggle, next, pr
   const fr = (x: number) => Math.max(0, Math.min(1, (x - 24) / (Dimensions.get('window').width - 48)));
   const p = dr !== null ? dr : (t && t.d ? Math.min(1, time / t.d) : 0);
   return (
-    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><Projos /><Brume /><Ambiance /><Ronds />
+    <ImageBackground source={require('../assets/egal.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}><ViewX pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: DimX.get('window').height * 0.13, bottom: DimX.get('window').height * 0.15, overflow: 'hidden' }}><ViewX pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: -DimX.get('window').height * 0.13, bottom: -DimX.get('window').height * 0.15 }}><Projos /><Brume /><Ambiance /></ViewX></ViewX><Ronds />
       <Pressable onPress={back} hitSlop={16} style={{ position: 'absolute', top: 18, left: 16 }}>
         <Svg width={30} height={30} viewBox="0 0 24 24"><Path d="M6 9l6 6 6-6" stroke="#EAF1FF" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg>
       </Pressable>
