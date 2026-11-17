@@ -49,6 +49,14 @@ export async function analyser(uri: string, d: number): Promise<number[] | null>
       const t = (k * hop) / sr;
       if (env[k] > m * 1.35 && env[k] >= env[k - 1] && env[k] > env[k + 1] && env[k] > gmax * 0.18 && t - last > 0.3) { out.push(t); last = t; }
     }
+    const ex: number[] = []; let lb = -1;
+    for (let k = 4; k < nF - 1; k++) {
+      const t = (k * hop) / sr;
+      if (env[k] > env[k - 3] * 1.3 && env[k] >= env[k - 1] && env[k] > env[k + 1] && env[k] > gmax * 0.12 && t - lb > 0.2) { ex.push(t); lb = t; }
+    }
+    const all = out.concat(ex).sort((a, b) => a - b);
+    out.length = 0; let lt = -1;
+    for (const x of all) { if (x - lt > 0.18) { out.push(x); lt = x; } }
     cache[uri] = out;
     msg = out.length ? out.length + ' battements' : 'aucun battement';
     return out;
