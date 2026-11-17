@@ -36,7 +36,6 @@ export function CoeurFx() {
     bs.setValue(Math.random() < 0.5 ? -1 : 1);
     bt.setValue((Math.random() - 0.5) * 60);
     Animated.sequence([tm(bolt, 1, 50), tm(bolt, 0, 380)]).start();
-    if (VIB) Vibration.vibrate(25);
   };
   const beat = () => {
     const n = st.n++, k = n % 4;
@@ -79,31 +78,10 @@ export function CoeurFx() {
   return (
     <View pointerEvents="none" style={fill}>
       <Animated.View style={[fill, { backgroundColor: '#3a8cff', opacity: ip(fa, 0, 0.15) }]} />
-            <Animated.View style={{ opacity: ip(cn, 0.3, 0.95), ...fill }}>
-        {LN.map(([a, b], k) => {
-          const [x1, y1] = P[a], [x2, y2] = P[b], l = Math.hypot(x2 - x1, y2 - y1);
-          return <View key={'l' + k} style={{ position: 'absolute', left: (x1 + x2) / 2 - l / 2, top: (y1 + y2) / 2, width: l, height: 1,
-            backgroundColor: '#7fb8ff', transform: [{ rotate: Math.atan2(y2 - y1, x2 - x1) + 'rad' }] }} />;
-        })}
-        {P.map(([x, y], k) => (
-          <View key={'d' + k} style={{ position: 'absolute', left: x - 2, top: y - 2, width: 4, height: 4, borderRadius: 2, backgroundColor: '#cfe6ff' }} />
-        ))}
-      </Animated.View>
-      {S.map((s, i) => (
-        <Animated.View key={'s' + i} style={{ position: 'absolute', left: W * (0.45 + 0.2 * i), top: 40 + i * 55,
-          width: 70, height: 2, borderRadius: 1, backgroundColor: '#cfe6ff',
-          opacity: s.interpolate({ inputRange: [0, 0.15, 1], outputRange: [0, 1, 0] }),
-          transform: [{ translateX: ip(s, 0, -220) }, { translateY: ip(s, 0, 110) }, { rotate: '-27deg' }] }} />
-      ))}
-      <Animated.View style={{ position: 'absolute', left: W / 2 - 60, top: 250, width: 120, height: 120, borderRadius: 60,
-        borderWidth: 3, borderColor: '#5aa8ff', opacity: ip(ring, 0.8, 0), transform: [{ scale: ip(ring, 0.5, 3.2) }] }} />
       <Animated.View style={{ position: 'absolute', top: 205, left: 0, right: 0, alignItems: 'center', transform: [{ scale: ip(pulse, 1, 1.12) }] }}>
         <View style={{ width: D, height: D }}>
           {FI.map((f, i) => <Animated.Image key={'f' + i} source={f} style={[im, { opacity: F[i] }]} />)}
           <Animated.Image source={FA} style={[im, { opacity: fa }]} />
-          <Animated.Image source={RF[0]} style={[im, { opacity: op(0, 0.25, 0.5) }]} />
-          <Animated.Image source={RF[1]} style={[im, { opacity: op(0.25, 0.5, 0.75) }]} />
-          <Animated.Image source={RF[2]} style={[im, { opacity: op(0.5, 0.75, 1) }]} />
         </View>
       </Animated.View>
     </View>
