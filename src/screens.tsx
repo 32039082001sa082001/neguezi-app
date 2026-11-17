@@ -1,3 +1,4 @@
+import { H, ACC, setAccent, getAccent } from './accent';
 import React, { useState, useRef } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
@@ -73,7 +74,7 @@ export function Lecteur({ cur, playing, time, toggle, next, prev, back, goRank }
       <View style={{ flexDirection: 'row', gap: 12, marginTop: 22 }}>
         {[['VOIX', voix, setVoix], ['INSTRU', instru, setInstru]].map(([n, v, f]) => (
           <View key={n as string} style={[card, { flex: 1, padding: 12 }]}>
-            <Switch value={v as boolean} onValueChange={f as (b: boolean) => void} trackColor={{ false: '#3A241C', true: C.red }} thumbColor={v ? C.copper : C.grey} />
+            <Switch value={v as boolean} onValueChange={f as (b: boolean) => void} trackColor={{ false: H('#3A241C'), true: C.red }} thumbColor={v ? C.copper : C.grey} />
             <Text style={{ color: C.cream, marginTop: 6 }}>{n as string} · {v ? 'ALLUMÉE' : 'COUPÉE'}</Text>
           </View>
         ))}
@@ -168,8 +169,8 @@ function CreerOld({ onCreate, back }: { onCreate: (r: Room) => void; back: () =>
 
 function CChip({ label, on, onPress, big }: { label: string; on: boolean; onPress: () => void; big?: boolean }) {
   return (
-    <Pressable onPress={onPress} style={{ paddingVertical: big ? 12 : 9, paddingHorizontal: big ? 18 : 16, borderRadius: 22, borderWidth: 1, borderColor: on ? '#6FA2FF' : '#223A7A', backgroundColor: on ? '#1F5BFF' : 'rgba(10,25,70,0.55)', flex: big ? 1 : undefined, alignItems: 'center' }}>
-      <Text style={{ color: on ? '#FFFFFF' : '#9DB4E8', fontSize: big ? 16 : 14, fontWeight: '600' }}>{label}</Text>
+    <Pressable onPress={onPress} style={{ paddingVertical: big ? 12 : 9, paddingHorizontal: big ? 18 : 16, borderRadius: 22, borderWidth: 1, borderColor: on ? H('#6FA2FF') : H('#223A7A'), backgroundColor: on ? H('#1F5BFF') : 'rgba(10,25,70,0.55)', flex: big ? 1 : undefined, alignItems: 'center' }}>
+      <Text style={{ color: on ? H('#FFFFFF') : H('#9DB4E8'), fontSize: big ? 16 : 14, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 }
@@ -178,7 +179,7 @@ function Disque({ t, d }: { t: string; d: number }) {
   return (
     <View style={{ width: d, height: d, alignItems: 'center', justifyContent: 'center' }}>
       <Image source={require('../assets/classement/vinyle.png')} style={{ width: d, height: d }} resizeMode="contain" />
-      <Text style={{ position: 'absolute', color: '#EAF2FF', fontSize: d * 0.4, fontWeight: '700', fontFamily: 'serif', textShadowColor: '#2F6BFF', textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } }}>{t.charAt(0).toUpperCase()}</Text>
+      <Text style={{ position: 'absolute', color: H('#EAF2FF'), fontSize: d * 0.4, fontWeight: '700', fontFamily: 'serif', textShadowColor: H('#2F6BFF'), textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } }}>{t.charAt(0).toUpperCase()}</Text>
     </View>
   );
 }
@@ -199,9 +200,9 @@ function Place({ r, w }: { r: number; w: number }) {
       <View style={{ width: w, height: sh, marginTop: -d * 0.22, zIndex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Image source={SOC[r]} style={{ position: 'absolute', width: w, height: sh }} resizeMode="contain" />
         <View style={{ paddingTop: sh * 0.22, alignItems: 'center', width: w * 0.92 }}>
-          <Text style={{ color: '#EAF2FF', fontSize: r === 0 ? 26 : 22, fontWeight: '800', textShadowColor: '#2F6BFF', textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } }}>{r + 1}</Text>
-          <Text numberOfLines={1} style={{ color: '#FFFFFF', fontSize: r === 0 ? 15 : 13, fontWeight: '700' }}>{TDEMO[r].t}</Text>
-          <Text style={{ color: '#B8CCF5', fontSize: 11 }}>{TDEMO[r].n} écoutes</Text>
+          <Text style={{ color: H('#EAF2FF'), fontSize: r === 0 ? 26 : 22, fontWeight: '800', textShadowColor: H('#2F6BFF'), textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } }}>{r + 1}</Text>
+          <Text numberOfLines={1} style={{ color: H('#FFFFFF'), fontSize: r === 0 ? 15 : 13, fontWeight: '700' }}>{TDEMO[r].t}</Text>
+          <Text style={{ color: H('#B8CCF5'), fontSize: 11 }}>{TDEMO[r].n} écoutes</Text>
         </View>
       </View>
     </View>
@@ -213,10 +214,10 @@ export function Classement() {
   const [per, setPer] = useState('Cette semaine');
   const cw = DimC.get('window').width - 40;
   return (
-    <View style={{ flex: 1, backgroundColor: '#050A1A' }}>
+    <View style={{ flex: 1, backgroundColor: H('#050A1A') }}>
       <Image source={require('../assets/fond.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', opacity: 0.55 }} />
       <ScrollView contentContainerStyle={pad}>
-        <Text style={{ color: '#EAF2FF', fontSize: 32, fontWeight: '800', textAlign: 'center', marginBottom: 14, textShadowColor: '#2F6BFF', textShadowRadius: 14, textShadowOffset: { width: 0, height: 0 } }}>Classement</Text>
+        <Text style={{ color: H('#EAF2FF'), fontSize: 32, fontWeight: '800', textAlign: 'center', marginBottom: 14, textShadowColor: H('#2F6BFF'), textShadowRadius: 14, textShadowOffset: { width: 0, height: 0 } }}>Classement</Text>
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>{['Tout le monde', 'Mon top'].map((x) => <CChip big key={x} label={x} on={who === x} onPress={() => setWho(x)} />)}</View>
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 22, flexWrap: 'wrap' }}>{['Cette semaine', 'Ce mois', 'Depuis le début'].map((x) => <CChip key={x} label={x} on={per === x} onPress={() => setPer(x)} />)}</View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', marginBottom: 22 }}>
@@ -225,23 +226,24 @@ export function Classement() {
           <Place r={2} w={cw * 0.31} />
         </View>
         {TDEMO.slice(3).map((x, k) => (
-          <View key={x.t} style={{ flexDirection: 'row', alignItems: 'center', padding: 10, marginBottom: 12, borderRadius: 22, borderWidth: 1, borderColor: '#2F6BFF', backgroundColor: 'rgba(8,24,70,0.6)' }}>
-            <View style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: '#4D8DFF', alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#EAF2FF', fontSize: 18, fontWeight: '600' }}>{k + 4}</Text></View>
+          <View key={x.t} style={{ flexDirection: 'row', alignItems: 'center', padding: 10, marginBottom: 12, borderRadius: 22, borderWidth: 1, borderColor: H('#2F6BFF'), backgroundColor: 'rgba(8,24,70,0.6)' }}>
+            <View style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: H('#4D8DFF'), alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: H('#EAF2FF'), fontSize: 18, fontWeight: '600' }}>{k + 4}</Text></View>
             <View style={{ marginLeft: 10 }}><Disque t={x.t} d={46} /></View>
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text numberOfLines={1} style={{ color: '#EAF2FF', fontSize: 17, fontWeight: '700' }}>{x.t}</Text>
-              <Text style={{ color: '#9DB4E8', fontSize: 13 }}>{x.n} écoutes</Text>
+              <Text numberOfLines={1} style={{ color: H('#EAF2FF'), fontSize: 17, fontWeight: '700' }}>{x.t}</Text>
+              <Text style={{ color: H('#9DB4E8'), fontSize: 13 }}>{x.n} écoutes</Text>
             </View>
-            <Text style={{ color: k % 2 ? '#2F6BFF' : '#22D3FF', fontSize: 24 }}>{k % 2 ? '↘' : '↗'}</Text>
+            <Text style={{ color: k % 2 ? H('#2F6BFF') : H('#22D3FF'), fontSize: 24 }}>{k % 2 ? '↘' : '↗'}</Text>
           </View>
         ))}
-        <Text style={{ color: '#6F8FC9', textAlign: 'center', marginTop: 8 }}>Prochain classement vendredi 8h</Text>
+        <Text style={{ color: H('#6F8FC9'), textAlign: 'center', marginTop: 8 }}>Prochain classement vendredi 8h</Text>
       </ScrollView>
     </View>
   );
 }
 
 export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => void }) {
+  const [, tick] = useState(0);
   const [part, setPart] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [name, setName] = useState('Neguezi');
@@ -259,36 +261,67 @@ export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => 
       if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri);
     } catch (e: any) { Alert.alert('Erreur partage', String(e && e.message ? e.message : e)); }
   }
+  const glass: any = { backgroundColor: 'rgba(8,24,70,0.72)', borderWidth: 1.5, borderColor: H('#2F6BFF'), borderRadius: 18, shadowColor: H('#2F6BFF'), shadowOpacity: 0.9, shadowRadius: 12, elevation: 8 };
+  const gt: any = { color: H('#EAF2FF'), fontFamily: 'serif' };
+  const blue: any = { backgroundColor: H('#1D5BFF'), borderWidth: 1, borderColor: H('#7FB0FF'), shadowColor: H('#2F6BFF'), shadowOpacity: 1, shadowRadius: 10, elevation: 8 };
+  const hs = [58, 80, 44];
+  const order = [1, 0, 2];
   return (
-    <ScrollView contentContainerStyle={pad}>
+    <ScrollView style={{ backgroundColor: H('#030818') }} contentContainerStyle={[pad, { paddingBottom: 230 }]}>
       <Head title="Profil" />
-      <View style={{ alignItems: 'center', marginBottom: 20 }}>
-        <Pressable onPress={pick} style={{ width: 96, height: 96, borderRadius: 48, borderWidth: 2, borderColor: C.copper, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: C.card }}>
-          {photo ? <Image source={{ uri: photo }} style={{ width: 96, height: 96 }} /> : <Text style={{ color: C.copper, fontSize: 34 }}>+</Text>}
+      <View style={{ alignItems: 'center', marginBottom: 18 }}>
+        <Pressable onPress={pick} style={{ width: 168, height: 168, borderRadius: 84, borderWidth: 3, borderColor: H('#2F6BFF'), backgroundColor: H('#02050F'), alignItems: 'center', justifyContent: 'center', shadowColor: H('#2F6BFF'), shadowOpacity: 1, shadowRadius: 22, elevation: 14 }}>
+          <View style={{ width: 144, height: 144, borderRadius: 72, borderWidth: 1, borderColor: H('#1B3A8A'), alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: 118, height: 118, borderRadius: 59, borderWidth: 1, borderColor: H('#27489E'), alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 92, height: 92, borderRadius: 46, borderWidth: 2, borderColor: H('#7FB0FF'), overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: H('#0A1B4D') }}>
+                {photo ? <Image source={{ uri: photo }} style={{ width: 92, height: 92 }} /> : <Text style={{ color: H('#7FB0FF'), fontSize: 38 }}>+</Text>}
+              </View>
+            </View>
+          </View>
         </Pressable>
-        <TextInput value={name} onChangeText={setName} maxLength={24} style={{ color: C.cream, fontSize: 26, fontFamily: 'serif', marginTop: 10, textAlign: 'center' }} />
-        <Text style={{ color: C.grey, fontStyle: 'italic' }}>La musique avec mes bons amis</Text>
+        <View style={[glass, { marginTop: 14, paddingHorizontal: 26, paddingVertical: 8, alignItems: 'center' }]}>
+          <TextInput value={name} onChangeText={setName} maxLength={24} style={[gt, { fontSize: 26, textAlign: 'center', padding: 0 }]} />
+          <Text style={[gt, { fontSize: 13, fontStyle: 'italic', color: H('#BFD6FF') }]}>La musique avec mes bons amis</Text>
+        </View>
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
-        {[['128', 'Écoutes cette semaine'], [String(TRACKS.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
-          <View key={l} style={[card, { flex: 1, padding: 12, alignItems: 'center' }]}><Text style={{ color: C.cream, fontSize: 26, fontFamily: 'serif' }}>{n}</Text><Text style={{ color: C.grey, fontSize: 11, textAlign: 'center' }}>{l}</Text></View>
+        {[['0', 'Écoutes cette semaine'], [String(TRACKS.length), 'Sons'], [mine ? '1' : '0', 'Salles créées']].map(([n, l]) => (
+          <View key={l} style={[glass, { flex: 1, padding: 12, alignItems: 'center' }]}>
+            <Text style={[gt, { fontSize: 28 }]}>{n}</Text>
+            <Text style={{ color: H('#9DBBFF'), fontSize: 11, textAlign: 'center' }}>{l}</Text>
+          </View>
         ))}
       </View>
-      <View ref={ref} collapsable={false} style={[card, { padding: 16, backgroundColor: C.bg }]}>
-        <Text style={{ color: C.copper, fontSize: 22, fontFamily: 'serif', letterSpacing: 5, textAlign: 'center' }}>NEGUEZI</Text>
-        <Text style={{ color: C.cream, fontSize: 18, fontFamily: 'serif', textAlign: 'center', marginBottom: 10 }}>Mon top de la semaine</Text>
-        {top.map((x, i) => <Text key={x.t} style={{ color: C.cream, marginVertical: 4, fontSize: 16 }}>{i + 1}. {x.t} <Text style={{ color: C.grey }}>· {x.n} écoutes</Text></Text>)}
-        <Text style={{ color: C.copper, textAlign: 'center', marginTop: 10 }}>Top de {name}</Text>
-        <Text style={{ color: C.grey, textAlign: 'center', fontSize: 12, fontStyle: 'italic' }}>la musique avec tes bons amis</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14, marginBottom: 18 }}>
+        {ACC.map(([nm, hx], i) => (
+          <Pressable key={nm} onPress={() => { setAccent(i); tick((n) => n + 1); }} style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: hx, borderWidth: getAccent() === i ? 3 : 1, borderColor: '#FFFFFF' }} />
+        ))}
       </View>
-      <Pressable onPress={share} style={[btn, { marginTop: 12 }]}><Text style={{ color: C.bg }}>Partager mon top</Text></Pressable>
-      <View style={[card, { padding: 14, marginTop: 14, flexDirection: 'row', alignItems: 'center' }]}>
-        <View style={{ flex: 1 }}><Text style={{ color: C.cream, fontSize: 16 }}>Participer au classement</Text><Text style={{ color: C.grey, fontSize: 12 }}>Ton top 3 est envoyé chaque jeudi</Text></View>
-        <Switch value={part} onValueChange={setPart} trackColor={{ false: '#3A241C', true: C.red }} thumbColor={part ? C.copper : C.grey} />
+      <View ref={ref} collapsable={false} style={[glass, { padding: 16, backgroundColor: H('#030818') }]}>
+        <Text style={{ color: H('#7FB0FF'), fontSize: 20, fontFamily: 'serif', letterSpacing: 5, textAlign: 'center' }}>NEGUEZI</Text>
+        <Text style={[gt, { fontSize: 18, textAlign: 'center', marginBottom: 12 }]}>Mon top de la semaine</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', gap: 8 }}>
+          {order.map((k) => (
+            <View key={k} style={{ flex: 1, alignItems: 'center' }}>
+              {k === 0 ? <Text style={{ color: H('#BFD6FF'), fontSize: 22 }}>♛</Text> : null}
+              <View style={[glass, { width: '100%', height: hs[k], alignItems: 'center', justifyContent: 'center', borderRadius: 10 }]}>
+                <Text style={[gt, { fontSize: 26 }]}>{k + 1}</Text>
+              </View>
+              <Text numberOfLines={1} style={{ color: H('#9DBBFF'), fontSize: 11, marginTop: 4 }}>{top[k] ? top[k].t : ''}</Text>
+            </View>
+          ))}
+        </View>
+        <Text style={{ color: H('#7FB0FF'), textAlign: 'center', marginTop: 12 }}>Top de {name}</Text>
+        <Text style={{ color: H('#9DBBFF'), textAlign: 'center', fontSize: 12, fontStyle: 'italic' }}>la musique avec tes bons amis</Text>
       </View>
-      <View style={[card, { padding: 14, marginTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
-        <Text style={{ color: C.cream, fontSize: 16 }}>Ma salle</Text>
-        <Pressable onPress={openRoom} style={[btn, { paddingHorizontal: 18, paddingVertical: 8 }]}><Text style={{ color: C.bg }}>{mine ? 'Ouvrir' : 'Créer'}</Text></Pressable>
+      <Pressable onPress={share} style={[btn, blue, { marginTop: 12 }]}><Text style={{ color: H('#FFFFFF'), fontWeight: '700' }}>Partager mon top</Text></Pressable>
+      <View style={[glass, { padding: 14, marginTop: 14, flexDirection: 'row', alignItems: 'center' }]}>
+        <View style={{ flex: 1 }}><Text style={[gt, { fontSize: 16 }]}>Participer au classement</Text><Text style={{ color: H('#9DBBFF'), fontSize: 12 }}>Ton top 3 est envoyé chaque jeudi</Text></View>
+        <Switch value={part} onValueChange={setPart} trackColor={{ false: H('#12214F'), true: H('#2F6BFF') }} thumbColor={part ? H('#FFFFFF') : H('#8FA6D6')} />
+      </View>
+      <View style={[glass, { padding: 14, marginTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+        <Text style={[gt, { fontSize: 16 }]}>Ma salle</Text>
+        <Pressable onPress={openRoom} style={[btn, blue, { paddingHorizontal: 18, paddingVertical: 8 }]}><Text style={{ color: H('#FFFFFF'), fontWeight: '700' }}>{mine ? 'Ouvrir' : 'Créer'}</Text></Pressable>
       </View>
     </ScrollView>
   );
