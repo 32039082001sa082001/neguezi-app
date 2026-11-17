@@ -1,4 +1,4 @@
-import { H, ACC, setAccent, getAccent } from './accent';
+import { H, ACC, setAccent, getAccent, BGS, setBg, getBgIndex, getBg } from './accent';
 import React, { useState, useRef } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
@@ -267,7 +267,7 @@ export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => 
   const hs = [58, 80, 44];
   const order = [1, 0, 2];
   return (
-    <ScrollView style={{ backgroundColor: H('#030818') }} contentContainerStyle={[pad, { paddingBottom: 230 }]}>
+    <ScrollView style={{ backgroundColor: getBg() }} contentContainerStyle={[pad, { paddingBottom: 230 }]}>
       <Head title="Profil" />
       <View style={{ alignItems: 'center', marginBottom: 18 }}>
         <Pressable onPress={pick} style={{ width: 168, height: 168, borderRadius: 84, borderWidth: 3, borderColor: H('#2F6BFF'), backgroundColor: H('#02050F'), alignItems: 'center', justifyContent: 'center', shadowColor: H('#2F6BFF'), shadowOpacity: 1, shadowRadius: 22, elevation: 14 }}>
@@ -295,6 +295,11 @@ export function Profil({ mine, openRoom }: { mine: Room | null; openRoom: () => 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14, marginBottom: 18 }}>
         {ACC.map(([nm, hx], i) => (
           <Pressable key={nm} onPress={() => { setAccent(i); tick((n) => n + 1); }} style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: hx, borderWidth: getAccent() === i ? 3 : 1, borderColor: '#FFFFFF' }} />
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14, marginBottom: 18 }}>
+        {BGS.map(([nm, hx], i) => (
+          <Pressable key={nm} onPress={() => { setBg(i); tick((n) => n + 1); }} style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: hx, borderWidth: getBgIndex() === i ? 3 : 1, borderColor: '#2F6BFF' }} />
         ))}
       </View>
       <View ref={ref} collapsable={false} style={[glass, { padding: 16, backgroundColor: H('#030818') }]}>

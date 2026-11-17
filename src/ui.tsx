@@ -1,3 +1,4 @@
+import { getTx } from './accent';
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Pressable, Animated, Easing } from 'react-native';
 import { C } from './theme';
@@ -32,7 +33,7 @@ export function Cover({ title, size = 48 }: { title: string; size?: number }) {
 export function Head({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-      <Text style={{ color: C.cream, fontSize: 28, fontFamily: 'serif' }}>{title}</Text>
+      <Text style={{ color: getTx(), fontSize: 28, fontFamily: 'serif' }}>{title}</Text>
       {right}
     </View>
   );

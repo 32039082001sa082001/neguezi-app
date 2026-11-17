@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 const T = [225, 190, 170, 250, 270];
 let cur = 0;
 export const ACC: [string, string][] = [['Bleu', '#2F6BFF'], ['Cyan', '#22D3EE'], ['Turquoise', '#14D8B4'], ['Indigo', '#5B5CFF'], ['Violet', '#8A63FF']];
@@ -19,4 +20,16 @@ export function H(hex: string): string {
   if (h < 60) { rr = c; gg = x; } else if (h < 120) { rr = x; gg = c; } else if (h < 180) { gg = c; bb = x; } else if (h < 240) { gg = x; bb = c; } else if (h < 300) { rr = x; bb = c; } else { rr = c; bb = x; }
   const f = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, '0');
   return '#' + f(rr) + f(gg) + f(bb);
+}
+
+export const BGS: [string, string, string][] = [['Bleu nuit', '#050A1A', '#F2E6D0'], ['Noir', '#000000', '#F2E6D0'], ['Vert nuit', '#04140F', '#F2E6D0'], ['Violet nuit', '#0F0820', '#F2E6D0'], ['Bordeaux nuit', '#1A050B', '#F2E6D0'], ['Blanc nuit', '#E8EEF9', '#0A1A3A']];
+let bgi = 0;
+const subs = new Set<() => void>();
+export function setBg(i: number) { bgi = i; subs.forEach((f) => f()); }
+export function getBgIndex() { return bgi; }
+export function getBg() { return BGS[bgi][1]; }
+export function getTx() { return BGS[bgi][2]; }
+export function useBg() {
+  const [, s] = useState(0);
+  useEffect(() => { const f = () => s((n) => n + 1); subs.add(f); return () => { subs.delete(f); }; }, []);
 }

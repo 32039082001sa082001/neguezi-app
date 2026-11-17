@@ -1,3 +1,4 @@
+import { getBg, useBg } from './src/accent';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StatusBar, Animated, Platform, Alert } from 'react-native';
 import * as MediaLibrary from 'expo-media-library/legacy';
@@ -20,6 +21,7 @@ import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces';
 import { Manrope_500Medium } from '@expo-google-fonts/manrope';
 
 export default function App() {
+  useBg();
   const [splash, setSplash] = useState(true);
   const fade = useRef(new Animated.Value(1)).current;
   const logoIn = useRef(new Animated.Value(0)).current;
@@ -137,7 +139,7 @@ export default function App() {
 
   if (fontsOk === false) return null;
   return (
-    <View style={{ flex: 1, backgroundColor: '#050A1A', paddingTop: top }}>
+    <View style={{ flex: 1, backgroundColor: getBg(), paddingTop: top }}>
       <StatusBar barStyle="light-content" backgroundColor="#050A1A" />
       <View style={{ flex: 1 }}>{body}</View>
       {screen !== 'lecteur' && screen !== 'scene' && has && (
