@@ -15,6 +15,7 @@ import { LectureVille } from './src/lecture';
 import { BarreVille } from './src/barre';
 import { BackHandler } from 'react-native';
 import { useFonts } from 'expo-font';
+import { SplashNote } from './src/splash';
 import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces';
 import { Manrope_500Medium } from '@expo-google-fonts/manrope';
 
@@ -64,7 +65,7 @@ export default function App() {
 
   useEffect(() => {
     Animated.timing(logoIn, { toValue: 1, duration: 1400, useNativeDriver: true }).start();
-    const t = setTimeout(() => { Animated.timing(fade, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => setSplash(false)); }, 2600);
+    const t = setTimeout(() => { Animated.timing(fade, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => setSplash(false)); }, 3800);
     setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' }).catch(() => {});
     loadMusic();
     const sub = AppState.addEventListener('change', (e: any) => { if (e === 'active') loadMusic(); });
@@ -144,12 +145,8 @@ export default function App() {
       )}
       <BarreVille tabs={tabs} active={active} go={(k: string) => setScreen(k)} />
       {splash && (
-        <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center', opacity: fade }}>
-          <Animated.View style={{ alignItems: 'center', opacity: logoIn, transform: [{ scale: logoIn.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
-            <Ouverture />
-            <Text style={{ color: C.copper, fontFamily: SERIF, fontSize: 34, letterSpacing: 8, marginTop: 24 }}>NEGUEZI</Text>
-            <Text style={{ color: C.grey, fontStyle: 'italic', marginTop: 8 }}>la musique avec tes bons amis</Text>
-          </Animated.View>
+        <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#030818', alignItems: 'center', justifyContent: 'center', opacity: fade }}>
+          <SplashNote />
         </Animated.View>
       )}
     </View>
