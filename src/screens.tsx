@@ -6,6 +6,7 @@ import { captureRef } from 'react-native-view-shot';
 import { View, Text, Pressable, ScrollView, TextInput, Switch, Share, Linking, Alert, Image } from 'react-native';
 import { C, TRACKS, DEMO as TDEMO, fmt } from './theme';
 import { Pill, Cover, Vinyl, Head } from './ui';
+import { Dimensions as DimC } from 'react-native';
 
 const pad = { padding: 20, paddingBottom: 220 };
 const card = { backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.line };
@@ -165,37 +166,78 @@ function CreerOld({ onCreate, back }: { onCreate: (r: Room) => void; back: () =>
   );
 }
 
+function CChip({ label, on, onPress, big }: { label: string; on: boolean; onPress: () => void; big?: boolean }) {
+  return (
+    <Pressable onPress={onPress} style={{ paddingVertical: big ? 12 : 9, paddingHorizontal: big ? 18 : 16, borderRadius: 22, borderWidth: 1, borderColor: on ? '#6FA2FF' : '#223A7A', backgroundColor: on ? '#1F5BFF' : 'rgba(10,25,70,0.55)', flex: big ? 1 : undefined, alignItems: 'center' }}>
+      <Text style={{ color: on ? '#FFFFFF' : '#9DB4E8', fontSize: big ? 16 : 14, fontWeight: '600' }}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function Disque({ t, d }: { t: string; d: number }) {
+  return (
+    <View style={{ width: d, height: d, alignItems: 'center', justifyContent: 'center' }}>
+      <Image source={require('../assets/classement/vinyle.png')} style={{ width: d, height: d }} resizeMode="contain" />
+      <Text style={{ position: 'absolute', color: '#EAF2FF', fontSize: d * 0.4, fontWeight: '700', fontFamily: 'serif', textShadowColor: '#2F6BFF', textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } }}>{t.charAt(0).toUpperCase()}</Text>
+    </View>
+  );
+}
+
+const SOC = [require('../assets/classement/socle1.png'), require('../assets/classement/socle2.png'), require('../assets/classement/socle3.png')];
+const LAU = [require('../assets/classement/laurier-or.png'), require('../assets/classement/laurier-argent.png')];
+
+function Place({ r, w }: { r: number; w: number }) {
+  const d = w * 0.6;
+  const sh = w * 0.62;
+  return (
+    <View style={{ width: w, alignItems: 'center' }}>
+      {r === 0 ? <Image source={require('../assets/classement/couronne.png')} style={{ width: d * 0.8, height: d * 0.55, marginBottom: -d * 0.12, zIndex: 3 }} resizeMode="contain" /> : null}
+      <View style={{ width: w, height: d, alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+        <Image source={LAU[r === 0 ? 0 : 1]} style={{ position: 'absolute', width: d * 1.45, height: d * 1.05 }} resizeMode="contain" />
+        <Disque t={TDEMO[r].t} d={d * 0.8} />
+      </View>
+      <View style={{ width: w, height: sh, marginTop: -d * 0.22, zIndex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Image source={SOC[r]} style={{ position: 'absolute', width: w, height: sh }} resizeMode="contain" />
+        <View style={{ paddingTop: sh * 0.22, alignItems: 'center', width: w * 0.92 }}>
+          <Text style={{ color: '#EAF2FF', fontSize: r === 0 ? 26 : 22, fontWeight: '800', textShadowColor: '#2F6BFF', textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } }}>{r + 1}</Text>
+          <Text numberOfLines={1} style={{ color: '#FFFFFF', fontSize: r === 0 ? 15 : 13, fontWeight: '700' }}>{TDEMO[r].t}</Text>
+          <Text style={{ color: '#B8CCF5', fontSize: 11 }}>{TDEMO[r].n} écoutes</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export function Classement() {
   const [who, setWho] = useState('Tout le monde');
   const [per, setPer] = useState('Cette semaine');
-  const pod = [1, 0, 2];
+  const cw = DimC.get('window').width - 40;
   return (
-    <ScrollView contentContainerStyle={pad}>
-      <Head title="Classement" />
-      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>{['Tout le monde', 'Mon top'].map((x) => <Pill key={x} label={x} on={who === x} onPress={() => setWho(x)} />)}</View>
-      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 22 }}>{['Cette semaine', 'Ce mois', 'Depuis le début'].map((x) => <Pill key={x} label={x} on={per === x} onPress={() => setPer(x)} />)}</View>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', gap: 10, marginBottom: 22 }}>
-        {pod.map((i) => (
-          <View key={i} style={{ alignItems: 'center', width: 100 }}>
-            <Cover title={TDEMO[i].t} size={i === 0 ? 92 : 68} />
-            <View style={{ backgroundColor: C.red, borderWidth: 1, borderColor: C.copper, width: '100%', height: i === 0 ? 70 : 50, marginTop: 8, borderTopLeftRadius: 10, borderTopRightRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: C.cream, fontSize: 28, fontFamily: 'serif' }}>{i + 1}</Text>
+    <View style={{ flex: 1, backgroundColor: '#050A1A' }}>
+      <Image source={require('../assets/fond.png')} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', opacity: 0.55 }} />
+      <ScrollView contentContainerStyle={pad}>
+        <Text style={{ color: '#EAF2FF', fontSize: 32, fontWeight: '800', textAlign: 'center', marginBottom: 14, textShadowColor: '#2F6BFF', textShadowRadius: 14, textShadowOffset: { width: 0, height: 0 } }}>Classement</Text>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>{['Tout le monde', 'Mon top'].map((x) => <CChip big key={x} label={x} on={who === x} onPress={() => setWho(x)} />)}</View>
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 22, flexWrap: 'wrap' }}>{['Cette semaine', 'Ce mois', 'Depuis le début'].map((x) => <CChip key={x} label={x} on={per === x} onPress={() => setPer(x)} />)}</View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', marginBottom: 22 }}>
+          <Place r={1} w={cw * 0.31} />
+          <Place r={0} w={cw * 0.38} />
+          <Place r={2} w={cw * 0.31} />
+        </View>
+        {TDEMO.slice(3).map((x, k) => (
+          <View key={x.t} style={{ flexDirection: 'row', alignItems: 'center', padding: 10, marginBottom: 12, borderRadius: 22, borderWidth: 1, borderColor: '#2F6BFF', backgroundColor: 'rgba(8,24,70,0.6)' }}>
+            <View style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: '#4D8DFF', alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#EAF2FF', fontSize: 18, fontWeight: '600' }}>{k + 4}</Text></View>
+            <View style={{ marginLeft: 10 }}><Disque t={x.t} d={46} /></View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text numberOfLines={1} style={{ color: '#EAF2FF', fontSize: 17, fontWeight: '700' }}>{x.t}</Text>
+              <Text style={{ color: '#9DB4E8', fontSize: 13 }}>{x.n} écoutes</Text>
             </View>
-            <Text numberOfLines={1} style={{ color: C.cream, fontSize: 12, marginTop: 4 }}>{TDEMO[i].t}</Text>
-            <Text style={{ color: C.grey, fontSize: 11 }}>{TDEMO[i].n} écoutes</Text>
+            <Text style={{ color: k % 2 ? '#2F6BFF' : '#22D3FF', fontSize: 24 }}>{k % 2 ? '↘' : '↗'}</Text>
           </View>
         ))}
-      </View>
-      {TDEMO.slice(3).map((x, k) => (
-        <View key={x.t} style={[card, { flexDirection: 'row', alignItems: 'center', padding: 10, marginBottom: 10 }]}>
-          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: C.red, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.cream }}>{k + 4}</Text></View>
-          <Text style={{ flex: 1, color: C.cream, fontSize: 16, marginLeft: 12 }}>{x.t}</Text>
-          <Text style={{ color: C.grey, marginRight: 8 }}>{x.n} écoutes</Text>
-          <Text style={{ color: k % 2 ? C.copper : C.cream }}>{k % 2 ? '▼' : '▲'}</Text>
-        </View>
-      ))}
-      <Text style={{ color: C.grey, textAlign: 'center', marginTop: 8 }}>Prochain classement vendredi 8h</Text>
-    </ScrollView>
+        <Text style={{ color: '#6F8FC9', textAlign: 'center', marginTop: 8 }}>Prochain classement vendredi 8h</Text>
+      </ScrollView>
+    </View>
   );
 }
 
