@@ -57,8 +57,8 @@ export function Ambiance() {
   const A: any = { position: 'absolute' };
   return (
     <View pointerEvents="none" style={[A, { top: 0, left: 0, right: 0, bottom: 0 }]}>
-      <Animated.View style={[A, { left: W / 2 - 150, top: CY - 150, width: 300, height: 300, borderRadius: 150,
-        backgroundColor: '#2f6fff', opacity: ip(glow, [0, 1], [0, 0.3]), transform: [{ scale: ip(glow, [0, 1], [0.9, 1.3]) }] }]} />
+      {[[600, 0.12], [430, 0.2], [270, 0.32]].map(([d, o], i) => <Animated.View key={'g' + i} style={[A, { left: W / 2 - d / 2, top: CY - d / 2, width: d, height: d, borderRadius: d / 2, backgroundColor: '#2f6fff',
+        opacity: ip(glow, [0, 1], [0.04, o * 2.2]), transform: [{ scale: ip(glow, [0, 1], [0.9, 1.18]) }] }]} />)}
       {rn.map((y, i) => <Animated.View key={'r' + i} style={[A, { left: 0, top: 0, width: 2, height: 90, backgroundColor: '#7fb8ff',
         opacity: ip(y, [0, 0.1, 0.9, 1], [0, 0.6, 0.6, 0]),
         transform: [{ translateX: rx[i] }, { translateY: ip(y, [0, 1], [-100, H]) }] }]} />)}
