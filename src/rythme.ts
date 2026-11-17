@@ -22,7 +22,7 @@ async function decoder(uri: string): Promise<any> {
   throw derniere || new Error('decodage vide');
 }
 
-export async function analyser(uri: string, d: number): Promise<number[] | null> {
+async function analyserBrut(uri: string, d: number): Promise<number[] | null> {
   if (cache[uri]) { msg = cache[uri].length + ' battements'; return cache[uri]; }
   msg = 'analyse...';
   try {
@@ -64,4 +64,16 @@ export async function analyser(uri: string, d: number): Promise<number[] | null>
     msg = 'echec: ' + String((e && e.message) || e).slice(0, 60);
     return null;
   }
+}
+
+const pending: any = {};
+export function analyser(uri: string, d: number): Promise<number[] | null> {
+  if (cache[uri]) return analyserBrut(uri, d);
+  if (!pending[uri]) {
+    pending[uri] = analyserBrut(uri, d).then(
+      (r) => { delete pending[uri]; return r; },
+      (e) => { delete pending[uri]; throw e; }
+    );
+  }
+  return pending[uri];
 }
