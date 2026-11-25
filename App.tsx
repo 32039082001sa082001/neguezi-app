@@ -10,6 +10,7 @@ import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
 import { Scene } from './src/scene';
 import { Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
+import { Allumer } from './src/allumer';
 import { SonsNeuf, MiniLecteur, BarreBas, Ouverture, SERIF, LecteurNeuf } from './src/sons';
 import { MesSonsNuit, LectureNuit } from './src/univers';
 import { VilleSons } from './src/ville';
@@ -134,7 +135,7 @@ export default function App() {
   if (screen === 'sons') body = <VilleSons playing={playing} cur={cur} onPick={pick} onAsk={loadMusic} uni={uni} setUni={setUni} />;
   if (screen === 'lecteur' && has) body = <LectureVille uni={uni} loop={loop} setLoop={setLoop} shuf={shuf} setShuf={setShuf} eff={eff} setEff={applyEff} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('sons')} goRank={() => setScreen('classement')} />;
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
-  if (screen === 'creer') body = <Creer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setScreen('salles'); }} />;
+  if (screen === 'creer') body = <Allumer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setRoom(r); setScreen('scene'); }} />;
   if (screen === 'classement') body = <Classement />;
   if (screen === 'scene' && room) body = <Scene pick={pick} room={room} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('salles')} />;
   if (screen === 'profil') body = <Profil mine={mine} openRoom={() => { if (mine) { setRoom(mine); setScreen('scene'); } else setScreen('creer'); }} />;

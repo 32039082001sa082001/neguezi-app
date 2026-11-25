@@ -9,9 +9,10 @@ import { Effets } from './effets';
 import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
 import { setVol } from './studio';
 import { padPlay } from './pads';
+import { useDirect } from './direct';
 import { boucleDemarre, boucleVerrouille, boucleLibere } from './boucle';
 
-type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number };
+type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; live?: any };
 type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
 
 const W = Dimensions.get('window').width;
@@ -91,6 +92,7 @@ function Title({ children }: { children: string }) {
 }
 
 export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back }: P) {
+  const dir = useDirect(room.live, !!room.mine);
   useKeepAwake();
   const [fx, setFx] = useState<string[]>([]);
   const [snd, setSnd] = useState<string[]>([]);
@@ -157,11 +159,11 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
             </Pressable>
             <Text style={{ color: TXT, fontSize: 20, fontWeight: '700' }}>{room.name}</Text>
             <View style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14, backgroundColor: CARD, borderWidth: 1, borderColor: LINE }}>
-              <Text style={{ color: TXT, fontWeight: '600' }}>0/6</Text>
+              <Text style={{ color: TXT, fontWeight: '600' }}>{dir.n}/3</Text>
             </View>
           </View>
           <Dj label="DJ 1" left={W * 0.2} />
-          <Dj label="DJ 2" left={W * 0.7} />
+          {/* <Dj label="DJ 2" left={W * 0.7} /> */}
           <View style={{ position: 'absolute', left: 0, right: 0, top: H * 0.36, alignItems: 'center' }}>
             <Pressable onPress={() => { buzz(); setRec(!rec); }} style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: '#E8421A', borderWidth: 3, borderColor: AMB, alignItems: 'center', justifyContent: 'center' }}>
               {rec ? <View style={{ width: 22, height: 22, borderRadius: 4, backgroundColor: '#FFE9D0' }} /> : <Text style={{ fontSize: 28 }}>🎙️</Text>}

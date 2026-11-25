@@ -3,8 +3,9 @@ import { View, Text, Pressable, ScrollView, TextInput, Alert, Image, Linking, An
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
+import { lister, entrer } from './live';
 
-type Room = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; photo?: string };
+type Room = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; photo?: string; live?: any; id?: string; dj?: string };
 const W = Dimensions.get('window').width;
 const AMB = '#2F6BFF';
 const TXT = '#EAF2FF';
@@ -38,16 +39,18 @@ function Fond() {
   );
 }
 
-const DEMO: Room[] = [
-  { name: 'Salle Bamako', pub: true, n: 4 },
-  { name: 'Soirée Ségou', pub: true, n: 2 },
-  { name: 'Matin doré', pub: true, n: 1 },
-];
-const SUB: any = { 'Salle Bamako': 'Nuit à Bamako', 'Soirée Ségou': 'Ambiance musicale', 'Matin doré': 'Bonne musique' };
 
 export function Salles({ mine, goCreate, open }: { mine: Room | null; goCreate: () => void; open: (r: Room) => void }) {
   const [code, setCode] = useState('');
-  const rooms = mine && mine.pub ? [mine, ...DEMO] : DEMO;
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [pseudo, setPseudo] = useState('');
+  useEffect(() => { lister().then((x: any) => setRooms((x.salles || []).map((a: any) => ({ name: a.nom, pub: true, n: a.presents, id: a.id, dj: a.dj_pseudo })))); }, []);
+  const go = async (q: any) => {
+    if (pseudo.length < 2) { Alert.alert('Pseudo', '2 lettres minimum'); return; }
+    const x = await entrer(pseudo, q.code, q.id);
+    if (x.erreur) { Alert.alert('Oups', x.erreur); return; }
+    open({ name: x.salle.nom, pub: true, n: 0, live: x });
+  };
   return (
     <View style={{ flex: 1, backgroundColor: '#0D0502' }}>
       <Fond />
@@ -58,9 +61,10 @@ export function Salles({ mine, goCreate, open }: { mine: Room | null; goCreate: 
             <Text style={{ color: TXT, fontWeight: '600' }}>{mine ? 'Ma salle' : '+ Ma salle'}</Text>
           </Pressable>
         </View>
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 110 }}>
-          <TextInput value={code} onChangeText={(x) => setCode(x.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={6} placeholder="Entrer avec un code" placeholderTextColor={DIM} style={{ flex: 1, color: TXT, fontSize: 17, letterSpacing: 3, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 22, borderWidth: 1, borderColor: LINE, backgroundColor: CARD }} />
-          <Pressable onPress={() => Alert.alert('Bientôt', 'Entrer avec un code arrive avec la connexion entre téléphones.')} style={{ backgroundColor: AMB, borderRadius: 22, paddingHorizontal: 22, justifyContent: 'center' }}>
+        <TextInput value={pseudo} onChangeText={setPseudo} maxLength={14} placeholder="Ton pseudo" placeholderTextColor={DIM} style={{ marginTop: 110, color: TXT, fontSize: 17, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 22, borderWidth: 1, borderColor: LINE, backgroundColor: CARD }} />
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+          <TextInput value={code} onChangeText={(x) => setCode(x.replace(/[^0-9]/g, ''))} maxLength={4} placeholder="Entrer avec un code" placeholderTextColor={DIM} style={{ flex: 1, color: TXT, fontSize: 17, letterSpacing: 3, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 22, borderWidth: 1, borderColor: LINE, backgroundColor: CARD }} />
+          <Pressable onPress={() => go({ code })} style={{ backgroundColor: AMB, borderRadius: 22, paddingHorizontal: 22, justifyContent: 'center' }}>
             <Text style={{ color: '#1A0A04', fontWeight: '700', fontSize: 16 }}>Entrer</Text>
           </Pressable>
         </View>
@@ -70,13 +74,13 @@ export function Salles({ mine, goCreate, open }: { mine: Room | null; goCreate: 
               <Text style={{ color: AMB, fontWeight: '700', fontSize: 12, letterSpacing: 1 }}>● EN DIRECT</Text>
             </View>
             <Text style={{ color: TXT, fontSize: 24, fontWeight: '700', marginTop: 8 }}>{r.name}</Text>
-            <Text style={{ color: DIM, marginTop: 2 }}>{SUB[r.name] || ''}</Text>
+            <Text style={{ color: DIM, marginTop: 2 }}>{r.dj ? 'DJ ' + r.dj : ''}</Text>
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
               {[0, 1].map((k) => <View key={k} style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: AMB, backgroundColor: '#2A1006', alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 20 }}>🎧</Text></View>)}
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-              <Text style={{ color: DIM }}>2 DJ · {r.n}/4 spectateurs</Text>
-              <Pressable onPress={() => open(r)} style={{ backgroundColor: AMB, borderRadius: 22, paddingHorizontal: 20, paddingVertical: 11 }}>
+              <Text style={{ color: DIM }}>{r.n}/3 en salle</Text>
+              <Pressable onPress={() => go({ id: r.id })} style={{ backgroundColor: AMB, borderRadius: 22, paddingHorizontal: 20, paddingVertical: 11 }}>
                 <Text style={{ color: '#1A0A04', fontWeight: '700' }}>🎧 Écouter</Text>
               </Pressable>
             </View>

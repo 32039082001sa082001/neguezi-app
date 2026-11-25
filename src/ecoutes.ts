@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { TRACKS, DEMO } from './theme';
-const URL = 'https://guxhrnesdwysjwoopukh.supabase.co';
-const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1eGhybmVzZHd5c2p3b29wdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ2MDU0ODcsImV4cCI6MjExMDE4MTQ4N30.AzL61bjSseTElj3NH_zS-ULRpfvqIwQpBRbTIM7xQY8';
+export const URL = 'https://guxhrnesdwysjwoopukh.supabase.co';
+export const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1eGhybmVzZHd5c2p3b29wdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ2MDU0ODcsImV4cCI6MjExMDE4MTQ4N30.AzL61bjSseTElj3NH_zS-ULRpfvqIwQpBRbTIM7xQY8';
 const HD = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };
 async function compter(titre: string) {
   try { await fetch(URL + '/rest/v1/rpc/compter', { method: 'POST', headers: HD, body: JSON.stringify({ p_titre: titre }) }); } catch (e) {}
