@@ -183,7 +183,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
             <Text style={{ color: TXT, fontWeight: '700', marginTop: 2, fontSize: 12 }}>{rec ? fmt(secs) : 'ENREGISTRER'}</Text>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', gap: 10, marginHorizontal: 12, marginTop: 6 }}>{['TABLE', 'PADS'].map((n, k) => (<Pressable key={n} onPress={() => { buzz(); setTab(k); }} style={{ flex: 1, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: LINE, backgroundColor: tab === k ? AMB : CARD }}><Text style={{ color: tab === k ? '#1A0A04' : TXT, fontWeight: '800', letterSpacing: 2 }}>{n}</Text></Pressable>))}</View>
+        <View style={{ flexDirection: 'row', gap: 10, marginHorizontal: 12, marginTop: 6 }}>{['TABLE', 'PADS', 'EFFETS'].map((n, k) => (<Pressable key={n} onPress={() => { buzz(); setTab(k); }} style={{ flex: 1, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: LINE, backgroundColor: tab === k ? AMB : CARD }}><Text style={{ color: tab === k ? '#1A0A04' : TXT, fontWeight: '800', letterSpacing: 2 }}>{n}</Text></Pressable>))}</View>
 {tab === 0 ? (<>
         <View style={{ marginHorizontal: 8, padding: 10, borderRadius: 24, backgroundColor: CARD, borderWidth: 1, borderColor: LINE }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -242,6 +242,8 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
             </Pressable>
           ))}
         </View>
+        </>) : null}
+        {tab === 2 ? (<>
         <Title>EFFETS DE SON</Title>
         <Effets onDrop={() => setFx(['Flash'])} />
         <Title>EFFETS DE LUMIÈRE</Title>

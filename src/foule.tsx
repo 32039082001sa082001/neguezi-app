@@ -7,7 +7,7 @@ export function Foule({ noms }: { noms: any[] }) {
   const dj = noms.find((p) => p.dj);
   const aud = noms.filter((p) => !p.dj);
   return (
-    <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: H * 0.17, width: W }}>
+    <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: H * 0.285, width: W }}>
       <Text style={{ color: TXT, textAlign: 'center', fontWeight: '700', fontSize: 12, letterSpacing: 2 }}>{dj ? 'DJ · ' + dj.nom : 'DJ'}</Text>
       <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 6 }}>
         {[0, 1].map((k) => (
