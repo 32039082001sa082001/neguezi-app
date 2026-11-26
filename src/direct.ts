@@ -5,12 +5,14 @@ import { AudioSession } from '@livekit/react-native';
 export function useDirect(live: any, dj: boolean) {
   const [n, setN] = useState(0);
   const [err, setErr] = useState('');
+  const [noms, setNoms] = useState<any[]>([]);
   useEffect(() => {
     if (!live) return;
     const room = new Room();
-    const maj = () => setN(room.remoteParticipants.size + 1);
+    const maj = () => { setN(room.remoteParticipants.size + 1); setNoms([room.localParticipant, ...Array.from(room.remoteParticipants.values())].map((p: any) => ({ nom: p.name || p.identity, dj: !!p.permissions?.canPublish }))); };
     room.on(RoomEvent.ParticipantConnected, maj);
     room.on(RoomEvent.ParticipantDisconnected, maj);
+    room.on(RoomEvent.ParticipantPermissionsChanged, maj);
     let ok = true;
     (async () => {
       try {
@@ -26,5 +28,5 @@ export function useDirect(live: any, dj: boolean) {
     })();
     return () => { ok = false; room.disconnect(); AudioSession.stopAudioSession(); };
   }, [live, dj]);
-  return { n, err };
+  return { n, err, noms };
 }

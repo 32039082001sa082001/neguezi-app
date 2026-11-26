@@ -10,6 +10,7 @@ import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
 import { setVol } from './studio';
 import { padPlay } from './pads';
 import { useDirect } from './direct';
+import { Foule } from './foule';
 import { boucleDemarre, boucleVerrouille, boucleLibere } from './boucle';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; live?: any };
@@ -150,7 +151,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
   );
   return (
     <View style={{ flex: 1, backgroundColor: '#5A2608' }}>
-      <Image source={require('../assets/studio2.png')} style={{ position: 'absolute', top: 0, left: 0, width: W, height: H }} />
+      <Image source={require('../assets/salle/fond.jpg')} style={{ position: 'absolute', top: 0, left: 0, width: W, height: H }} />
       <Lumieres fx={fx} /><ScrollView contentContainerStyle={{ paddingBottom: 230 }}>
         <View style={{ height: H * 0.5 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 40, paddingHorizontal: 16 }}>
@@ -162,7 +163,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
               <Text style={{ color: TXT, fontWeight: '600' }}>{dir.n}/3</Text>
             </View>
           </View>
-          <Dj label="DJ 1" left={W * 0.2} />
+          <Foule noms={dir.noms} />
           {/* <Dj label="DJ 2" left={W * 0.7} /> */}
           <View style={{ position: 'absolute', left: 0, right: 0, top: H * 0.36, alignItems: 'center' }}>
             <Pressable onPress={() => { buzz(); setRec(!rec); }} style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: '#E8421A', borderWidth: 3, borderColor: AMB, alignItems: 'center', justifyContent: 'center' }}>
@@ -235,14 +236,6 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
         <Title>EFFETS DE LUMIÈRE</Title>
         <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16 }}>{['Lasers', 'Flash', 'Braises', 'Bogolan'].map((k) => chip(k, fx, setFx))}</View>
         </>) : null}
-        <Title>SPECTATEURS · 0/4</Title>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14 }}>
-          {[0, 1, 2, 3].map((k) => (
-            <View key={k} style={{ width: 54, height: 54, borderRadius: 27, borderWidth: 2, borderStyle: 'dashed', borderColor: LINE, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: AMB, fontSize: 24 }}>+</Text>
-            </View>
-          ))}
-        </View>
       </ScrollView>
       {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => { if (pk === 1 && pick) pick(i); else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); deck2Play(); setS2p(true); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
     </View>
