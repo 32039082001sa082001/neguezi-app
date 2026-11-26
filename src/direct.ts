@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Room, RoomEvent } from 'livekit-client';
 import { PermissionsAndroid } from 'react-native';
 import { AudioSession } from '@livekit/react-native';
@@ -6,9 +6,12 @@ export function useDirect(live: any, dj: boolean) {
   const [n, setN] = useState(0);
   const [err, setErr] = useState('');
   const [noms, setNoms] = useState<any[]>([]);
+  const [mic, setMic] = useState(false);
+  const rm = useRef<any>(null);
   useEffect(() => {
     if (!live) return;
     const room = new Room();
+    rm.current = room;
     const maj = () => { setN(room.remoteParticipants.size + 1); setNoms([room.localParticipant, ...Array.from(room.remoteParticipants.values())].map((p: any) => ({ nom: p.name || p.identity, dj: !!p.permissions?.canPublish }))); };
     room.on(RoomEvent.ParticipantConnected, maj);
     room.on(RoomEvent.ParticipantDisconnected, maj);
@@ -20,7 +23,7 @@ export function useDirect(live: any, dj: boolean) {
         await room.connect(live.url, live.token);
         if (dj) {
           const p = await PermissionsAndroid.request('android.permission.RECORD_AUDIO');
-          if (p === 'granted') await room.localParticipant.setMicrophoneEnabled(true);
+          if (p === 'granted') { await room.localParticipant.setMicrophoneEnabled(true); setMic(true); }
           else setErr('Micro refuse');
         }
         if (ok) maj();
@@ -28,5 +31,6 @@ export function useDirect(live: any, dj: boolean) {
     })();
     return () => { ok = false; room.disconnect(); AudioSession.stopAudioSession(); };
   }, [live, dj]);
-  return { n, err, noms };
+  const bascule = async () => { try { const v = !mic; await rm.current.localParticipant.setMicrophoneEnabled(v); setMic(v); } catch (e) {} };
+  return { n, err, noms, mic, bascule };
 }

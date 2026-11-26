@@ -11,6 +11,9 @@ import { setVol } from './studio';
 import { padPlay } from './pads';
 import { useDirect } from './direct';
 import { Foule } from './foule';
+import { EcranCoeur } from './ecran';
+import { EnDirect } from './endirect';
+import { Projecteurs } from './projecteurs';
 import { boucleDemarre, boucleVerrouille, boucleLibere } from './boucle';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; live?: any };
@@ -38,7 +41,12 @@ function Disc({ size, spin }: { size: number; spin: boolean }) {
     return () => a.stop();
   }, [spin]);
   const rot = v.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  return <Animated.Image source={require('../assets/disque.png')} style={{ width: size, height: size, transform: [{ rotate: rot }] }} />;
+  return (
+    <View style={{ width: size, height: size }}>
+      <Image source={require('../assets/salle/platine.png')} style={{ width: size, height: size }} />
+      <Animated.Image source={require('../assets/salle/disque.png')} style={{ position: 'absolute', left: size * 0.1, top: size * 0.1, width: size * 0.8, height: size * 0.8, transform: [{ rotate: rot }] }} />
+    </View>
+  );
 }
 
 function Heart({ size, on }: { size: number; on: boolean }) {
@@ -163,7 +171,10 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
               <Text style={{ color: TXT, fontWeight: '600' }}>{dir.n}/3</Text>
             </View>
           </View>
+          <EcranCoeur on={playing} onPress={toggle} />
+          <Projecteurs fx={fx} setFx={setFx} />
           <Foule noms={dir.noms} />
+          {room.mine ? <EnDirect mic={dir.mic} onPress={dir.bascule} /> : null}
           {/* <Dj label="DJ 2" left={W * 0.7} /> */}
           <View style={{ position: 'absolute', left: 0, right: 0, top: H * 0.36, alignItems: 'center' }}>
             <Pressable onPress={() => { buzz(); setRec(!rec); }} style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: '#E8421A', borderWidth: 3, borderColor: AMB, alignItems: 'center', justifyContent: 'center' }}>
@@ -226,7 +237,7 @@ export function Scene({ pick, room, cur, playing, time, toggle, next, prev, back
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginHorizontal: 16 }}>
           {PADS.map((k) => (
             <Pressable key={k} onPressIn={() => { buzz(); setLit(k); padPlay(k); }} onPressOut={() => setLit(null)} style={{ width: PW, height: PW, alignItems: 'center', justifyContent: 'center' }}>
-              <Image source={require('../assets/pad.png')} style={{ position: 'absolute', width: PW, height: PW, opacity: lit === k ? 1 : 0.8 }} />
+              <View style={{ position: 'absolute', width: PW, height: PW, borderRadius: 18, borderWidth: 3, backgroundColor: ['#FF8A1F', '#2EC24A', '#E8421A'][PADS.indexOf(k) % 3], borderColor: lit === k ? '#FFE9D0' : '#3A1D0C', opacity: lit === k ? 1 : 0.7 }} />
               <Text style={{ color: '#1A0A04', fontWeight: '800', fontSize: 13 }}>{k}</Text>
             </Pressable>
           ))}
