@@ -62,6 +62,7 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
   const [q, setQ] = useState("");
   const [s2, setS2] = useState<number | null>(null);
   const [s2p, setS2p] = useState(false);
+  const [ch1, setCh1] = useState(false);
   const [secs, setSecs] = useState(0);
   const [fond, setFond] = useState(0.5);
   const fRef = useRef(0.5);
@@ -149,7 +150,7 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
       <Image source={require('../assets/salle2/table-o.webp')}
         style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }} />
       <View style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }}>
-        <Pressable onPress={() => { buzz(); toggle(); }} onLongPress={() => setPk(1)}
+        <Pressable onPress={() => { buzz(); if (!playing && !ch1) setPk(1); else toggle(); }} onLongPress={() => setPk(1)}
           style={at(0.247, 0.223, D, D)}><Spin on={playing} size={D} /></Pressable>
         <Pressable onPress={() => {
           buzz(); if (s2 === null) setPk(2);
@@ -183,7 +184,7 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
 ) : null}
 </View>
 {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => {
-  if (pk === 1 && pick) pick(i); else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); deck2Play(); setS2p(true); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
+  if (pk === 1 && pick) { pick(i); setCh1(true); } else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); deck2Play(); setS2p(true); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
 </View>
 );
 }
