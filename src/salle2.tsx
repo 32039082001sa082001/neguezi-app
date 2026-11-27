@@ -147,8 +147,8 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
       </Pressable>
       <Lumieres fx={fx} />
       <Image source={require('../assets/salle2/table-o.webp')}
-        style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH }} />
-      <View style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH }}>
+        style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }} />
+      <View style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }}>
         <Pressable onPress={() => { buzz(); toggle(); }} onLongPress={() => setPk(1)}
           style={at(0.247, 0.223, D, D)}><Spin on={playing} size={D} /></Pressable>
         <Pressable onPress={() => {
