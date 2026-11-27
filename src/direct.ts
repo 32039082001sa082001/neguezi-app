@@ -19,6 +19,7 @@ export function useDirect(live: any, dj: boolean) {
     let ok = true;
     (async () => {
       try {
+        await AudioSession.configureAudio({ android: { preferredOutputList: ['speaker'], audioTypeOptions: { manageAudioFocus: false, audioMode: 'normal', audioStreamType: 'music', audioAttributesUsageType: 'media', audioAttributesContentType: 'music' } } });
         await AudioSession.startAudioSession();
         await room.connect(live.url, live.token);
         if (dj) {
