@@ -9,6 +9,7 @@ import { createFacade, setRemote, setEnd } from './src/studio';
 import { C, TRACKS, setTracks, fmt } from './src/theme';
 import { Logo, Cover } from './src/ui';
 import { Scene } from './src/scene';
+import { Salle2 } from './src/salle2';
 import { Lecteur, Salles, Creer, Classement, Profil, Room } from './src/screens';
 import { Allumer } from './src/allumer';
 import { SonsNeuf, MiniLecteur, BarreBas, Ouverture, SERIF, LecteurNeuf } from './src/sons';
@@ -137,7 +138,7 @@ export default function App() {
   if (screen === 'salles') body = <Salles mine={mine} goCreate={() => setScreen('creer')} open={(r) => { setRoom(r); setScreen('scene'); }} />;
   if (screen === 'creer') body = <Allumer back={() => setScreen('salles')} onCreate={(r) => { setMine(r); setRoom(r); setScreen('scene'); }} />;
   if (screen === 'classement') body = <Classement />;
-  if (screen === 'scene' && room) body = <Scene pick={pick} room={room} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('salles')} />;
+  if (screen === 'scene' && room) body = <Salle2 pick={pick} room={room} cur={cur} playing={playing} time={time} toggle={toggle} next={next} prev={prev} back={() => setScreen('salles')} />;
   if (screen === 'profil') body = <Profil mine={mine} openRoom={() => { if (mine) { setRoom(mine); setScreen('scene'); } else setScreen('creer'); }} />;
 
   if (fontsOk === false) return null;
