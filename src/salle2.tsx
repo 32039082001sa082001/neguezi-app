@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
 import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
-import Lumieres2 from './lumieres2';
+import Lumieres2, { Fond, Dessus } from './lumieres2';
 import { Effets } from './effets';
 import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
 import { setVol } from './studio';
@@ -17,7 +17,7 @@ import { Projecteurs } from './projecteurs';
 import { boucleDemarre, boucleVerrouille, boucleLibere } from './boucle';
 
 type R = { name: string; pub: boolean; code?: string; mine?: boolean; n: number; live?: any };
-type P = { pick?: (i: number) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
+type P = { pick?: (i: number, auto?: boolean) => void; room: R; cur: number; playing: boolean; time: number; toggle: () => void; next: () => void; prev: () => void; back: () => void };
 
 const W = Dimensions.get('window').width;
 const H = (W * 1672) / 941;
@@ -124,30 +124,30 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
   const py = (r: number) => 0.755 + r * 0.115;
   return (
     <View style={{ flex: 1, backgroundColor: '#1A0803' }}>
-      <Image source={require('../assets/salle2/fond.jpg')}
-        style={{ position: 'absolute', top: 0, left: 0, width: W, height: H }} />
+      <Fond W={W} H={H} />
       <Pressable onPress={back} style={{ position: 'absolute', top: 8, left: 12, padding: 8 }}>
         <Text style={{ color: TXT, fontSize: 26 }}>‹</Text>
       </Pressable>
       <Text style={{ position: 'absolute', top: 16, width: W, textAlign: 'center',
         color: TXT, fontWeight: '800', letterSpacing: 2 }}>{room.name}</Text>
       <Pressable onPress={() => { buzz(); setRec(!rec); }}
-        style={{ position: 'absolute', right: 14, bottom: TH + 8, height: 40,
-          paddingHorizontal: 14, borderRadius: 20, flexDirection: 'row',
+        style={{ position: 'absolute', left: 14 + 2 * ((W - 44) / 3 + 8), bottom: TH * 0.8 + 8, width: (W - 44) / 3, height: 40,
+          paddingHorizontal: 6, borderRadius: 20, flexDirection: 'row', justifyContent: 'center',
           alignItems: 'center', gap: 8, backgroundColor: 'rgba(30,12,4,0.88)',
           borderWidth: 2, borderColor: rec ? '#E8421A' : AMB }}>
         <View style={{ width: 14, height: 14, borderRadius: rec ? 3 : 7, backgroundColor: '#E8421A' }} />
         <Text style={{ color: TXT, fontWeight: '700' }}>
-          {rec ? Math.floor(secs / 10) + ' s' : 'ENREGISTRER'}</Text>
+          {rec ? Math.floor(secs / 10) + ' s' : 'REC'}</Text>
       </Pressable>
       <Pressable onPress={() => { buzz(); setMode(mode ? 0 : 1); }}
-        style={{ position: 'absolute', left: 14, bottom: TH + 8, height: 40,
-          paddingHorizontal: 14, borderRadius: 20, justifyContent: 'center',
+        style={{ position: 'absolute', left: 14, bottom: TH * 0.8 + 8, width: (W - 44) / 3, height: 40,
+          paddingHorizontal: 6, borderRadius: 20, justifyContent: 'center', alignItems: 'center',
           backgroundColor: 'rgba(30,12,4,0.88)', borderWidth: 2, borderColor: AMB }}>
         <Text style={{ color: AMB, fontWeight: '800' }}>{mode ? 'EFFETS' : 'PADS'} ⇄</Text>
       </Pressable>
       <Lumieres2 W={W} H={H} />
-      <Pressable onPress={() => { buzz(); if (!ch1) { setPk(1); return; } if (s2 === null) { setPk(2); return; } if (playing && s2p) { toggle(); deck2Pause(); setS2p(false); } else { setFond(0.5); if (!playing) toggle(); if (!s2p) { deck2Play(); setS2p(true); } } }} style={{ position: 'absolute', left: W * 0.5 - 75, top: H * 0.4, width: 150, height: 44, borderRadius: 22, backgroundColor: '#2A1408', borderWidth: 2, borderColor: '#FFB020', alignItems: 'center', justifyContent: 'center', zIndex: 30 }}><Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 14 }}>{playing && s2p ? 'STOP 2 DISQUES' : '2 DISQUES'}</Text></Pressable>
+      <Dessus W={W} H={H} TH={TH} fx={fx} />
+      <Pressable onPress={() => { buzz(); if (!ch1) { setPk(1); return; } if (s2 === null) { setPk(2); return; } if (playing && s2p) { toggle(); deck2Pause(); setS2p(false); } else { setFond(0.5); try { setVol(Math.cos(Math.PI / 4)); deck2Vol(Math.sin(Math.PI / 4)); } catch (e) {} if (!playing) toggle(); if (!s2p) { deck2Play(); setS2p(true); } } }} style={{ position: 'absolute', left: 14 + (W - 44) / 3 + 8, bottom: TH * 0.8 + 8, width: (W - 44) / 3, height: 40, borderRadius: 22, backgroundColor: '#2A1408', borderWidth: 2, borderColor: '#FFB020', alignItems: 'center', justifyContent: 'center', zIndex: 30 }}><Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 14 }}>{playing && s2p ? '■ STOP' : '2 DISQUES'}</Text></Pressable>
       <Image source={require('../assets/salle2/table-o.webp')}
         style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }} />
       <View style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }}>
@@ -185,7 +185,7 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
 ) : null}
 </View>
 {pk !== null ? (<View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: H * 0.6, overflow: 'hidden' }}><ListeSons open={true} onClose={() => { setPk(null); setQ(''); }} q={q} setQ={setQ} cur={pk === 2 && s2 !== null ? s2 : cur} playing={playing} onPick={(i: number) => {
-  if (pk === 1 && pick) { pick(i); setCh1(true); } else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); deck2Play(); setS2p(true); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
+  if (pk === 1 && pick) { pick(i, false); setCh1(true); } else { setS2(i); try { const u = TRACKS[i] && (TRACKS[i] as any).uri; if (u) { deck2Load(u); setS2p(false); } } catch (e) {} } setPk(null); setQ(''); }} /></View>) : null}
 </View>
 );
 }

@@ -85,14 +85,14 @@ export default function App() {
       const id = setInterval(() => { v += 0.1; try { p.volume = Math.min(v, 1); } catch (e) {} if (v >= 1) clearInterval(id); }, 100);
     } catch (e) {}
   }
-  function pick(i: number) {
+  function pick(i: number, auto?: boolean) {
     const t = TRACKS[i];
     if (!t || !t.uri) return;
     setCur(i); setTime(0);
     if (!player.current) player.current = createFacade({ uri: t.uri, d: t.d, t: t.t });
     else player.current.replace({ uri: t.uri, d: t.d, t: t.t });
     try { player.current.setActiveForLockScreen(true, { title: t.t, artist: 'NEGUEZI' }); } catch (e) {}
-    player.current.play();
+    if (auto !== false) player.current.play();
     fadeIn();
     setPlaying(true);
   }
