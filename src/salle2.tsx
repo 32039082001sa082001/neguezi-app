@@ -6,7 +6,8 @@ import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
 import Lumieres2, { Fond, Dessus } from './lumieres2';
 import { Effets } from './effets';
-import { deck2Load, deck2Play, deck2Pause, deck2Vol, deck2Ready } from './deck2';
+import { deck2Load, deck2Play, deck2Pause, deck2Vol, deck2Ready, deck2Rate } from './deck2';
+import { setBpm1, setBpm2, calcSync } from './sync';
 import { setVol } from './studio';
 import { padPlay } from './pads';
 import { useDirect } from './direct';
@@ -63,6 +64,9 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
   const [s2, setS2] = useState<number | null>(null);
   const [s2p, setS2p] = useState(false);
   const [ch1, setCh1] = useState(false);
+  const [bp1, setBp1] = useState(100);
+  const [bp2, setBp2] = useState(100);
+  const [syn, setSyn] = useState('');
   const [secs, setSecs] = useState(0);
   const [fond, setFond] = useState(0.5);
   const fRef = useRef(0.5);
@@ -147,6 +151,15 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
       </Pressable>
       <Lumieres2 W={W} H={H} />
       <Dessus W={W} H={H} TH={TH} fx={fx} />
+      <View style={{ position: 'absolute', left: 14, right: 14, bottom: TH * 0.8 + 54, height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', zIndex: 30 }}>
+        <Pressable onPress={() => { const v = Math.max(40, bp1 - 1); setBp1(v); setBpm1(v); }}><Text style={{ color: '#FFB020', fontWeight: '800' }}>-</Text></Pressable>
+        <Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 12 }}>{'1: ' + bp1}</Text>
+        <Pressable onPress={() => { const v = Math.min(220, bp1 + 1); setBp1(v); setBpm1(v); }}><Text style={{ color: '#FFB020', fontWeight: '800' }}>+</Text></Pressable>
+        <Pressable onPress={() => { buzz(); setBpm1(bp1); setBpm2(bp2); const r = calcSync(); if (r) { deck2Rate(r.r); setSyn(r.warn ? 'LIMITE 6%' : 'OK ' + r.r.toFixed(3)); } }} style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 14, borderWidth: 2, borderColor: '#FFB020', backgroundColor: '#2A1408' }}><Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 12 }}>{'SYNC ' + syn}</Text></Pressable>
+        <Pressable onPress={() => { const v = Math.max(40, bp2 - 1); setBp2(v); setBpm2(v); }}><Text style={{ color: '#FFB020', fontWeight: '800' }}>-</Text></Pressable>
+        <Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 12 }}>{'2: ' + bp2}</Text>
+        <Pressable onPress={() => { const v = Math.min(220, bp2 + 1); setBp2(v); setBpm2(v); }}><Text style={{ color: '#FFB020', fontWeight: '800' }}>+</Text></Pressable>
+      </View>
       <Pressable onPress={() => { buzz(); if (!ch1) { setPk(1); return; } if (s2 === null) { setPk(2); return; } if (playing && s2p) { toggle(); deck2Pause(); setS2p(false); } else { setFond(0.5); try { setVol(Math.cos(Math.PI / 4)); deck2Vol(Math.sin(Math.PI / 4)); } catch (e) {} if (!s2p) { setS2p(true); deck2Ready(() => { if (!playing) toggle(); }); } else if (!playing) toggle(); } }} style={{ position: 'absolute', left: 14 + (W - 44) / 3 + 8, bottom: TH * 0.8 + 8, width: (W - 44) / 3, height: 40, borderRadius: 22, backgroundColor: '#2A1408', borderWidth: 2, borderColor: '#FFB020', alignItems: 'center', justifyContent: 'center', zIndex: 30 }}><Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 14 }}>{playing && s2p ? '■ STOP' : '2 DISQUES'}</Text></Pressable>
       <Image source={require('../assets/salle2/table-o.webp')}
         style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }} />

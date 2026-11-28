@@ -21,14 +21,16 @@ export function deck2Ready(cb: () => void) {
   const id = setInterval(() => { n++; let ok = false; try { ok = !p || !!p.playing; } catch (e) { ok = true; } if (ok || n > 40) { clearInterval(id); cb(); } }, 25);
 }
 
-let buf2: any = null; let g2: any = null; let src2: any = null; let v2 = 1; let cx2: any = null;
+let rate2 = 1; let buf2: any = null; let g2: any = null; let src2: any = null; let v2 = 1; let cx2: any = null;
 async function dec2(uri: string) {
   try { const c = getCtx(); if (!c) return; if (cx2 !== c) { cx2 = c; g2 = c.createGain(); g2.connect(c.destination); } g2.gain.value = v2; buf2 = null; buf2 = await c.decodeAudioData(uri); } catch (e) { buf2 = null; }
 }
 function eng2stop() { try { if (src2) src2.stop(); } catch (e) {} src2 = null; }
 function eng2go(cb: () => void): boolean {
   let s: any = null; let c: any = null;
-  try { c = getCtx(); if (!c || !buf2 || cx2 !== c || getMode() !== 'st') return false; eng2stop(); try { c.resume(); } catch (e) {} s = c.createBufferSource(); s.buffer = buf2; s.connect(g2); g2.gain.value = v2; } catch (e) { return false; }
+  try { c = getCtx(); if (!c || !buf2 || cx2 !== c || getMode() !== 'st') return false; eng2stop(); try { c.resume(); } catch (e) {} s = c.createBufferSource(); s.buffer = buf2; s.connect(g2); g2.gain.value = v2; s.playbackRate.value = rate2; } catch (e) { return false; }
   cb(); try { s.start(0, 0); src2 = s; } catch (e) {}
   return true;
 }
+
+export function deck2Rate(r: number) { rate2 = Math.max(0.5, Math.min(2, r)); try { if (src2) src2.playbackRate.value = rate2; } catch (e) {} }
