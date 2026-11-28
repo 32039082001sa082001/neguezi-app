@@ -92,9 +92,9 @@ export default function App() {
     if (!player.current) player.current = createFacade({ uri: t.uri, d: t.d, t: t.t });
     else player.current.replace({ uri: t.uri, d: t.d, t: t.t });
     try { player.current.setActiveForLockScreen(true, { title: t.t, artist: 'NEGUEZI' }); } catch (e) {}
-    if (auto !== false) player.current.play();
+    if (auto !== false) player.current.play(); else { try { player.current.pause(); } catch (e) {} }
     fadeIn();
-    setPlaying(true);
+    setPlaying(auto !== false);
   }
   function toggle() {
     if (!TRACKS.length) return;
