@@ -222,3 +222,6 @@ export function isPlaying(): boolean { return !!(active && active.playing); }
 export function getRoom(): string { try { return active ? active.rs + '|' + active.err : 'off|'; } catch (e) { return 'off|'; } }
 
 export function seekTo(x: number) { try { const a: any = active; if (!a) return; if (a.mode === 'st') { a.off = x; if (a.playing) a.startSrc(); } else if (a.fb) { a.fb.seekTo(x); } } catch (e) {} }
+
+export function getCtx(): any { try { return active ? (active as any).ctx : null; } catch (e) { return null; } }
+export function getMode(): string { try { return active ? (active as any).mode : 'fb'; } catch (e) { return 'fb'; } }

@@ -6,7 +6,7 @@ import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
 import Lumieres2, { Fond, Dessus } from './lumieres2';
 import { Effets } from './effets';
-import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
+import { deck2Load, deck2Play, deck2Pause, deck2Vol, deck2Ready } from './deck2';
 import { setVol } from './studio';
 import { padPlay } from './pads';
 import { useDirect } from './direct';
@@ -147,7 +147,7 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
       </Pressable>
       <Lumieres2 W={W} H={H} />
       <Dessus W={W} H={H} TH={TH} fx={fx} />
-      <Pressable onPress={() => { buzz(); if (!ch1) { setPk(1); return; } if (s2 === null) { setPk(2); return; } if (playing && s2p) { toggle(); deck2Pause(); setS2p(false); } else { setFond(0.5); try { setVol(Math.cos(Math.PI / 4)); deck2Vol(Math.sin(Math.PI / 4)); } catch (e) {} if (!playing) toggle(); if (!s2p) { deck2Play(); setS2p(true); } } }} style={{ position: 'absolute', left: 14 + (W - 44) / 3 + 8, bottom: TH * 0.8 + 8, width: (W - 44) / 3, height: 40, borderRadius: 22, backgroundColor: '#2A1408', borderWidth: 2, borderColor: '#FFB020', alignItems: 'center', justifyContent: 'center', zIndex: 30 }}><Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 14 }}>{playing && s2p ? '■ STOP' : '2 DISQUES'}</Text></Pressable>
+      <Pressable onPress={() => { buzz(); if (!ch1) { setPk(1); return; } if (s2 === null) { setPk(2); return; } if (playing && s2p) { toggle(); deck2Pause(); setS2p(false); } else { setFond(0.5); try { setVol(Math.cos(Math.PI / 4)); deck2Vol(Math.sin(Math.PI / 4)); } catch (e) {} if (!s2p) { setS2p(true); deck2Ready(() => { if (!playing) toggle(); }); } else if (!playing) toggle(); } }} style={{ position: 'absolute', left: 14 + (W - 44) / 3 + 8, bottom: TH * 0.8 + 8, width: (W - 44) / 3, height: 40, borderRadius: 22, backgroundColor: '#2A1408', borderWidth: 2, borderColor: '#FFB020', alignItems: 'center', justifyContent: 'center', zIndex: 30 }}><Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 14 }}>{playing && s2p ? '■ STOP' : '2 DISQUES'}</Text></Pressable>
       <Image source={require('../assets/salle2/table-o.webp')}
         style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }} />
       <View style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }}>
