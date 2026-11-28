@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
 import { TRACKS, fmt } from './theme';
 import { ListeSons } from './liste';
-import { Lumieres } from './lumieres';
+import Lumieres2 from './lumieres2';
 import { Effets } from './effets';
 import { deck2Load, deck2Play, deck2Pause, deck2Vol } from './deck2';
 import { setVol } from './studio';
@@ -146,7 +146,8 @@ export function Salle2({ pick, room, cur, playing, time, toggle, next, prev, bac
           backgroundColor: 'rgba(30,12,4,0.88)', borderWidth: 2, borderColor: AMB }}>
         <Text style={{ color: AMB, fontWeight: '800' }}>{mode ? 'EFFETS' : 'PADS'} ⇄</Text>
       </Pressable>
-      <Lumieres fx={fx} />
+      <Lumieres2 W={W} H={H} />
+      <Pressable onPress={() => { buzz(); if (!ch1) { setPk(1); return; } if (s2 === null) { setPk(2); return; } if (playing && s2p) { toggle(); deck2Pause(); setS2p(false); } else { setFond(0.5); if (!playing) toggle(); if (!s2p) { deck2Play(); setS2p(true); } } }} style={{ position: 'absolute', left: W * 0.5 - 75, top: H * 0.4, width: 150, height: 44, borderRadius: 22, backgroundColor: '#2A1408', borderWidth: 2, borderColor: '#FFB020', alignItems: 'center', justifyContent: 'center', zIndex: 30 }}><Text style={{ color: '#FFB020', fontWeight: '800', fontSize: 14 }}>{playing && s2p ? 'STOP 2 DISQUES' : '2 DISQUES'}</Text></Pressable>
       <Image source={require('../assets/salle2/table-o.webp')}
         style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }} />
       <View style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: TH, transform: [{ translateY: TH * 0.1 }, { scale: 0.8 }] }}>
